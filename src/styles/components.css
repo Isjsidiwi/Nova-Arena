@@ -1,0 +1,471 @@
+/* Komponen bersama: tombol, judul, badge elemen, kartu, sheet, tab, stage list, strip tim */
+
+.btn {
+  position: relative;
+  padding: 12px 26px;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 1.5px;
+  color: #241100;
+  background: linear-gradient(#fff0b0, var(--au));
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  transition: .1s;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, #fff9 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: sh 3s infinite;
+}
+
+.btn:active {
+  transform: scale(.96);
+  filter: brightness(.9);
+}
+
+.btn.cy {
+  background: linear-gradient(#bff4ff, var(--cy));
+  color: #00222c;
+}
+
+.btn.pk {
+  background: linear-gradient(#ffc0d8, var(--pk));
+  color: #3a0420;
+}
+
+.btn.gh {
+  background: #2a3470;
+  color: var(--tx);
+}
+
+.btn.gh::after {
+  display: none;
+}
+
+.btn:disabled {
+  filter: grayscale(1) brightness(.6);
+}
+
+@keyframes sh {
+  0%, 60% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.ttl {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-style: italic;
+  margin: 2px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ttl::before {
+  content: '';
+  width: 6px;
+  height: 26px;
+  background: var(--pk);
+  transform: skewX(-15deg);
+}
+
+.ttl small {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--dm);
+  font-style: normal;
+  letter-spacing: 1px;
+}
+
+.dm {
+  color: var(--dm);
+}
+
+.eb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a0a1a;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  flex: none;
+}
+
+/* Kartu hero */
+.hg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.hc {
+  position: relative;
+  aspect-ratio: 3/4.2;
+  background: radial-gradient(circle at 50% 30%, var(--c) -80%, #0c1236 75%);
+  border: 2px solid var(--r);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  overflow: hidden;
+  transition: .1s;
+}
+
+.hc:active {
+  transform: scale(.96);
+}
+
+.hc svg {
+  position: absolute;
+  left: 0;
+  top: 6%;
+  width: 100%;
+  height: 80%;
+}
+
+.hc .nm {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 6px 4px;
+  background: linear-gradient(transparent, #000d);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+}
+
+.hc .eb {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.hc .rr {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--r);
+  font-size: 15px;
+  text-shadow: 0 0 8px var(--r);
+}
+
+.hc.SSR::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, #ffffff55 50%, transparent 60%);
+  animation: sh 3s infinite;
+}
+
+.hc.in {
+  outline: 2px solid var(--cy);
+  outline-offset: -5px;
+}
+
+.hc.lk {
+  filter: grayscale(1) brightness(.4);
+}
+
+.ic .nm {
+  font-size: 11px;
+}
+
+/* Sheet / modal bawah */
+.ov {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  background: #02040ccc;
+  display: flex;
+  align-items: flex-end;
+  animation: fi .2s;
+}
+
+@keyframes fi {
+  from { opacity: 0; }
+}
+
+.sh {
+  width: 100%;
+  max-height: 88%;
+  overflow-y: auto;
+  background: linear-gradient(#141c4a, #0a0f2c);
+  border-top: 3px solid var(--cy);
+  padding: 16px 16px calc(18px + var(--sab));
+  animation: up .3s cubic-bezier(.2, .9, .3, 1);
+  scrollbar-width: none;
+}
+
+@keyframes up {
+  from { transform: translateY(100%); }
+}
+
+.hd {
+  display: flex;
+  gap: 12px;
+}
+
+.hd .pt {
+  width: 42%;
+  flex: none;
+  aspect-ratio: 3/4;
+  background: radial-gradient(circle at 50% 30%, var(--c) -60%, #0c1236 70%);
+  border: 2px solid var(--r);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+.hd .pt svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hd h2 {
+  font-size: 30px;
+  font-style: italic;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #ffffff0d;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.bar b {
+  color: var(--au);
+}
+
+.sk {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #ffffff0a;
+  border-left: 3px solid var(--cy);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.sk b {
+  color: var(--cy);
+  font-size: 15px;
+}
+
+.sk.ul {
+  border-color: var(--pk);
+}
+
+.sk.ul b {
+  color: var(--pk);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.row .btn {
+  flex: 1;
+  padding: 12px 8px;
+}
+
+/* Tab */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 8px;
+  background: #141c4a;
+  color: var(--dm);
+  font-weight: 700;
+  letter-spacing: 1px;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+
+.tabs .on {
+  background: var(--c);
+  color: #111;
+}
+
+/* Daftar stage */
+.stg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #1a2360, #0d1338);
+  border-left: 5px solid var(--c);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+  width: 100%;
+  text-align: left;
+}
+
+.stg .n {
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 700;
+  width: 52px;
+  color: var(--c);
+}
+
+.stg .t {
+  flex: 1;
+  font-size: 17px;
+}
+
+.stg .t small {
+  display: block;
+  color: var(--dm);
+  font-size: 12px;
+}
+
+.stg.lk {
+  opacity: .4;
+  filter: grayscale(1);
+}
+
+.stars {
+  color: #3a4170;
+  letter-spacing: 2px;
+  font-size: 18px;
+}
+
+.stars .f {
+  color: var(--au);
+  text-shadow: 0 0 8px var(--au);
+}
+
+/* Strip tim (5 slot) */
+.strip {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.slot {
+  flex: 1;
+  aspect-ratio: 3/4;
+  position: relative;
+  background: #0c1236;
+  border: 2px solid #2a3470;
+  overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.slot svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slot em {
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* Blok tombol aksi utama */
+.go {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.go .btn {
+  flex: 1;
+  font-size: 24px;
+  padding: 16px;
+}
+
+.go .inf {
+  width: 30%;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.go .inf b {
+  display: block;
+  font-size: 18px;
+  color: var(--au);
+}
+
+/* Tag "Dipakai ..." pada kartu item */
+.tg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24px;
+  z-index: 2;
+  text-align: center;
+  background: #ff5c9aee;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Efek naik level */
+.lvf {
+  position: absolute;
+  z-index: 98;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.lvf i {
+  position: absolute;
+  left: -10px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--c);
+  border-radius: 50%;
+  animation: rg 1s forwards;
+}
+
+.lvf i + i {
+  animation-delay: .2s;
+}
+
+.lvf b {
+  position: absolute;
+  left: 0;
+  transform: translate(-50%, 0);
+  white-space: nowrap;
+  font-size: 30px;
+  font-style: italic;
+  color: var(--c);
+  text-shadow: 0 0 12px var(--c), 0 2px 0 #000;
+  animation: pu2 1.3s forwards;
+}
+
+@keyframes pu2 {
+  from { transform: translate(-50%, 10px) scale(.4); opacity: 0; }
+  25% { transform: translate(-50%, -10px) scale(1.2); opacity: 1; }
+  to { transform: translate(-50%, -70px); opacity: 0; }
+}

@@ -1,0 +1,81 @@
+/* Layar Summon (banner + tombol pull) */
+
+.ban {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3a1a6e, #12206a 60%, #0a5a7a);
+  border: 2px solid var(--au);
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+}
+
+.ban svg {
+  position: absolute;
+  right: -4%;
+  bottom: 0;
+  height: 104%;
+}
+
+.ban .tx {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  max-width: 55%;
+}
+
+.ban .tx b {
+  font-size: 34px;
+  font-style: italic;
+  line-height: 1;
+  display: block;
+  color: var(--au);
+  text-shadow: 0 0 16px #ffd76a88;
+}
+
+.ban .pt {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  background: #000a;
+  padding: 4px 14px;
+  font-size: 14px;
+}
+
+.pulls {
+  display: flex;
+  gap: 10px;
+}
+
+.pulls .btn {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.1;
+  padding: 10px;
+}
+
+.pulls small {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: .8;
+}
+
+.ban .iban {
+  position: absolute;
+  right: 8px;
+  top: 14%;
+  bottom: 14%;
+  width: 52%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.ban .iban svg {
+  position: static;
+  height: auto;
+  width: 100%;
+  animation: fl 3s ease-in-out infinite;
+}

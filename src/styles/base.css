@@ -1,0 +1,56 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: #03050f;
+  color: var(--tx);
+  font: 600 15px Rajdhani, 'Segoe UI', system-ui, sans-serif;
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+#st {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100vw, calc(100dvh * .6));
+  overflow: clip;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, .07) 1px, transparent 1.6px) 0 0 / 16px 16px,
+    linear-gradient(115deg, transparent 40%, rgba(82, 224, 255, .10) 50%, transparent 60%),
+    radial-gradient(120% 60% at 50% 0, #27306e, transparent 70%),
+    linear-gradient(#0c1233, #070b1c);
+}
+
+#fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 97;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: .01s !important;
+  }
+}

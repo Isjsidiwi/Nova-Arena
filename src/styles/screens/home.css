@@ -1,0 +1,104 @@
+/* Layar Beranda */
+
+#home .stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 0;
+}
+
+#home .kj {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 230px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: .1;
+  pointer-events: none;
+}
+
+#home .ring {
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 1;
+  bottom: 6%;
+  border-radius: 50%;
+  border: 2px dashed;
+  opacity: .5;
+  animation: rot 40s linear infinite;
+}
+
+#home .ring.b {
+  width: 62%;
+  bottom: 12%;
+  animation-direction: reverse;
+  border-style: solid;
+  opacity: .3;
+}
+
+@keyframes rot {
+  to { transform: rotate(360deg); }
+}
+
+#lead {
+  position: relative;
+  height: 96%;
+  animation: fl 4s ease-in-out infinite;
+  cursor: pointer;
+  filter: drop-shadow(0 12px 24px #0008);
+}
+
+@keyframes fl {
+  50% { transform: translateY(-8px); }
+}
+
+#lead svg {
+  height: 100%;
+  width: auto;
+}
+
+.plate {
+  position: absolute;
+  left: 0;
+  bottom: 30px;
+  padding: 8px 26px 8px 14px;
+  background: linear-gradient(90deg, #0a1030f0, #0a103000);
+  border-left: 5px solid var(--pk);
+}
+
+.plate b {
+  display: block;
+  font-size: 30px;
+  font-style: italic;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.plate span {
+  font-size: 13px;
+  color: var(--dm);
+  letter-spacing: 1px;
+}
+
+.say {
+  position: absolute;
+  right: 0;
+  top: 12%;
+  max-width: 46%;
+  padding: 10px 14px;
+  background: #fffffff2;
+  color: #161a3a;
+  font-size: 14px;
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 12px 82%, 0 100%);
+  padding-bottom: 18px;
+  opacity: 0;
+  transition: .25s;
+}
+
+.say.on {
+  opacity: 1;
+}

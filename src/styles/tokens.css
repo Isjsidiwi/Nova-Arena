@@ -1,0 +1,11 @@
+:root {
+  --bg: #070b1c;
+  --cy: #52e0ff;
+  --pk: #ff5c9a;
+  --au: #ffd76a;
+  --tx: #eef3ff;
+  --dm: #8f9bc4;
+  --pn: rgba(14, 20, 48, .82);
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
