@@ -2,13 +2,15 @@
 // null = pakai art SVG bawaan (hero/item) / SFX sintetis.
 export const ASSETS = {
   portrait: {
-    sylva: 'assets/portraits/sylva.webp',
+    // ?v= wajib dinaikkan setiap file diganti: Cloudflare + browser meng-cache
+    // aset statis sampai 4 jam, query versi membuat URL dianggap aset baru.
+    sylva: 'assets/portraits/sylva.webp?v=2',
   },
   icon: {
-    sylva: 'assets/icons/sylva.webp',
+    sylva: 'assets/icons/sylva.webp?v=3',
   },
   cutin: {
-    sylva: 'assets/cutins/sylva.webp',
+    sylva: 'assets/cutins/sylva.webp?v=3',
   },
   bg: {
     home: null,

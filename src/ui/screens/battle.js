@@ -37,8 +37,30 @@ let currentStage = 0;
 let running = false;
 let speed = 1;
 
+/**
+ * Muat gambar cut-in seluruh tim di latar sejak sheet persiapan dibuka.
+ * Cut-in hanya tampil 950ms saat ult; tanpa preload, browser baru mulai
+ * mengunduh file-nya di momen itu juga (dan aset tidak di-cache: no-store)
+ * sehingga banner ult muncul kosong.
+ */
+const preloadedCutins = new Set();
+const preloadedCutinImages = []; // referensi ditahan: tanpa ini hasil preload dibuang GC
+function preloadCutins() {
+  for (const id of S.team) {
+    const url = ASSETS.cutin[id];
+    if (url && !preloadedCutins.has(url)) {
+      preloadedCutins.add(url);
+      const img = new Image();
+      img.src = url;
+      preloadedCutinImages.push(img);
+      if (img.decode) img.decode().catch(() => {});
+    }
+  }
+}
+
 /** Sheet persiapan sebelum bertarung: info stage, hadiah, dan tim. */
 export function openBattlePrep(stage) {
+  preloadCutins();
   const chapterIndex = chapterIndexForStage(stage);
   const chapter = CHAPTERS[chapterIndex];
   const step = ((stage - 1) % STAGES_PER_CHAPTER) + 1;
@@ -77,6 +99,7 @@ export function openBattlePrep(stage) {
 }
 
 async function startFight(stage) {
+  preloadCutins();
   currentStage = stage;
   speed = 1;
   running = true;
@@ -136,6 +159,10 @@ function renderBattleField() {
     </div>
     <div class="ub">${ultBar}</div>
     <div id="cut"></div>
+    <div aria-hidden="true" style="position:absolute;left:0;bottom:0;width:100%;height:30%;opacity:0;pointer-events:none;overflow:hidden">${battle.units
+      .filter((unit) => unit.side === 'p' && ASSETS.cutin[unit.hero.id])
+      .map((unit) => heroArt(unit.hero, 'cutin'))
+      .join('')}</div>
   `;
 }
 

@@ -5,6 +5,9 @@ export default defineConfig({
   server: {
     // Diakses publik via Cloudflare Tunnel (nova.kitsulabs.xyz -> localhost:5173)
     allowedHosts: ['nova.kitsulabs.xyz'],
+    // Jangan simpan cache di origin; Cloudflare masih bisa meng-cache di edge,
+    // jadi ganti aset tetap wajib menaikkan ?v= di src/config/assets.js.
+    headers: { 'Cache-Control': 'no-store' },
   },
   build: {
     outDir: 'dist',

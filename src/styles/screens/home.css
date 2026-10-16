@@ -46,19 +46,26 @@
 
 #lead {
   position: relative;
-  height: 96%;
+  /* Paket tampilan portrait (16 Okt): skala 94% dari semula (96% -> 90.5%)
+     + geser kiri sedikit, agar busur di sisi kanan tidak menempel tepi layar. */
+  height: 90.5%;
+  margin-left: -14px;
   animation: fl 4s ease-in-out infinite;
   cursor: pointer;
   filter: drop-shadow(0 12px 24px #0008);
 }
 
 @keyframes fl {
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-5px); }
 }
 
 #lead svg {
   height: 100%;
   width: auto;
+  /* Fade bawah: portrait setengah badan melebur ke background, tanpa garis
+     potong keras di paha saat animasi naik-turun berjalan. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 79%, transparent 99%);
+  mask-image: linear-gradient(to bottom, #000 79%, transparent 99%);
 }
 
 .plate {
