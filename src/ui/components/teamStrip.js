@@ -12,7 +12,7 @@ export function teamStripHtml(state) {
       return `<button class="slot" data-ts="${slot}" style="display:flex;align-items:center;justify-content:center;color:var(--cy);font-size:36px;border-style:dashed">+</button>`;
     }
     const hero = HERO_BY_ID[id];
-    return `<button class="slot" data-ts="${slot}" style="border-color:${RARITY[hero.rarity].color}">${heroArt(hero)}<em>Lv${getOwned(state, id).lv}</em></button>`;
+    return `<button class="slot" data-ts="${slot}" style="border-color:${RARITY[hero.rarity].color};--bc:${RARITY[hero.rarity].color}">${heroArt(hero)}<em>Lv${getOwned(state, id).lv}</em></button>`;
   });
   return `<div class="strip">${slots.join('')}</div>`;
 }

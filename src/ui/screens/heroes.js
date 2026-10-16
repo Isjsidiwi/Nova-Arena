@@ -51,7 +51,7 @@ export function renderHeroScreen() {
   if (!itemTab) {
     const owned = sortedOwned(S);
     content = `<div class="hg">${owned
-      .map((o) => heroCard(HERO_BY_ID[o.id], o, S.team.includes(o.id) ? 'in' : ''))
+      .map((o) => heroCard(HERO_BY_ID[o.id], o, S.team.includes(o.id) ? 'in' : '', S.team.indexOf(o.id) + 1))
       .join('')}${HEROES.filter((hero) => !getOwned(S, hero.id))
       .map((hero) => heroCard(hero, null, 'lk'))
       .join('')}</div>`;

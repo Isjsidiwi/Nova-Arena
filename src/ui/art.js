@@ -53,6 +53,20 @@ export function itemArt(item) {
   return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="${color}" opacity=".2"/><g fill="${color}" stroke="#fff" stroke-width="2.5" stroke-linejoin="round">${SLOT_ICON_PATHS[item.s]}</g></svg>`;
 }
 
-/** Badge elemen berbentuk belah ketupat. */
-export const elementBadge = (element) =>
-  `<span class="eb" style="background:${ELEMENTS[element].color}">${ELEMENTS[element].glyph}</span>`;
+/** Badge rarity: plakat gambar jika tersedia, fallback teks berwarna. */
+export function rarityBadge(rarity) {
+  const icon = ASSETS.rarity && ASSETS.rarity[rarity];
+  if (icon) {
+    return `<span class="rr img"><img src="${icon}" alt="${rarity}"></span>`;
+  }
+  return `<span class="rr">${rarity}</span>`;
+}
+
+/** Badge elemen: ikon medali jika tersedia, fallback belah ketupat + glyph. */
+export function elementBadge(element) {
+  const icon = ASSETS.element && ASSETS.element[element];
+  if (icon) {
+    return `<span class="eb img" title="${ELEMENTS[element].name}"><img src="${icon}" alt="${ELEMENTS[element].name}"></span>`;
+  }
+  return `<span class="eb" style="background:${ELEMENTS[element].color}">${ELEMENTS[element].glyph}</span>`;
+}

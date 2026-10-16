@@ -4,7 +4,7 @@ import { RARITY } from '../data/rarity.js';
 import { ELEMENTS } from '../data/elements.js';
 import { RARITY_PREFIX, SLOT_NAMES } from '../data/items.js';
 import { itemText } from '../core/equipment.js';
-import { heroArt, itemArt, elementBadge } from './art.js';
+import { heroArt, itemArt, elementBadge, rarityBadge } from './art.js';
 import { heroCard, itemCard } from './components/cards.js';
 import { burst, spawnParticle } from './particles.js';
 import { sfx } from '../core/audio.js';
@@ -85,7 +85,7 @@ function renderResultCard(rv, result, allowSkip) {
     ${result.rarity !== 'R' ? `<div class="rg" style="--c:${color}"></div><div class="rg" style="--c:${color};animation-delay:.25s"></div>` : ''}
     ${result.rarity === 'SSR' ? '<div class="big">SSR</div>' : ''}
     <div class="rc ${result.rarity}" style="--r:${color};--c:${accent}">
-      <span class="rr">${result.rarity}</span>
+      ${rarityBadge(result.rarity)}
       ${isItem ? itemArt(result.item) : heroArt(result.hero)}
       <div class="nm"><b>${name}</b>${subtitle}</div>
     </div>

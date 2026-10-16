@@ -75,6 +75,10 @@
   text-shadow: 0 0 12px var(--r);
 }
 
+.rc .rr.img img {
+  height: 46px;
+}
+
 .mini {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -88,10 +92,16 @@
 
 .mini .nm {
   font-size: 10px;
+  padding-left: 7px;
+  padding-right: 8px;
 }
 
 .mini .rr {
   font-size: 11px;
+}
+
+.mini .rr.img img {
+  height: 13px;
 }
 
 .rg {

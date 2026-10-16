@@ -7,7 +7,7 @@ import { teamPower } from '../../core/roster.js';
 import { battleRewards, battleStars } from '../../core/economy.js';
 import { createBattle, ENERGY_MAX } from '../../core/battle/engine.js';
 import { makePlayerUnits, makeEnemyUnits } from '../../core/battle/units.js';
-import { heroArt, monsterArt } from '../art.js';
+import { heroArt, monsterArt, elementBadge } from '../art.js';
 import { teamStripHtml } from '../components/teamStrip.js';
 import { openTeamPick } from '../sheets/teamPick.js';
 import { openSheet } from '../sheet.js';
@@ -120,7 +120,7 @@ function renderBattleField() {
     .filter((unit) => unit.side === 'e')
     .map((unit) => `
       <div class="u e ${unit.boss ? 'bs' : ''}" id="u-e-${unit.index}">
-        <span class="eb" style="background:${ELEMENTS[unit.element].color}">${ELEMENTS[unit.element].glyph}</span>
+        ${elementBadge(unit.element)}
         <div class="a">${monsterArt(unit.element, unit.boss)}</div>
         <div class="b h"><i style="width:100%"></i></div>
       </div>`)
@@ -130,7 +130,7 @@ function renderBattleField() {
     .filter((unit) => unit.side === 'p')
     .map((unit) => `
       <div class="u p" id="u-p-${unit.index}">
-        <span class="eb" style="background:${ELEMENTS[unit.element].color}">${ELEMENTS[unit.element].glyph}</span>
+        ${elementBadge(unit.element)}
         <div class="a">${heroArt(unit.hero)}</div>
         <div class="b h"><i style="width:100%"></i></div>
         <div class="b n"><i style="width:0%"></i></div>

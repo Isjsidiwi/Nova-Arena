@@ -1,6 +1,7 @@
 import { $ } from '../dom.js';
 import { S } from '../../store.js';
 import { HERO_BY_ID } from '../../data/heroes.js';
+import { ASSETS } from '../../config/assets.js';
 import { ELEMENTS } from '../../data/elements.js';
 import { CHAPTERS, STAGES_PER_CHAPTER, TOTAL_STAGES, chapterIndexForStage } from '../../data/chapters.js';
 import { GREETING_LINES } from '../../data/lines.js';
@@ -47,7 +48,7 @@ export function renderHomeScreen() {
 
   $('#home').innerHTML = `
     <div class="stage" style="--c:${color}">
-      <div class="kj" style="color:${color}">${ELEMENTS[hero.element].glyph}</div>
+      <div class="kj">${ASSETS.element && ASSETS.element[hero.element] ? `<img src="${ASSETS.element[hero.element]}" alt="">` : `<span style="color:${color}">${ELEMENTS[hero.element].glyph}</span>`}</div>
       <div class="ring" style="border-color:${color}"></div>
       <div class="ring b" style="border-color:${color}"></div>
       <div id="lead">${heroArt(hero)}</div>

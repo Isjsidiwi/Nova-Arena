@@ -90,6 +90,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Tanpa ini badge sejajar baseline teks: ikon 26px terlihat naik/turun
+     terhadap teks di sampingnya (mis. baris elemen di sheet hero). */
+  vertical-align: middle;
   width: 22px;
   height: 22px;
   font-size: 13px;
@@ -97,6 +100,20 @@
   color: #0a0a1a;
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
   flex: none;
+}
+
+/* Varian ikon medali: lingkaran, sedikit lebih besar agar motif terbaca. */
+.eb.img {
+  width: 26px;
+  height: 26px;
+  clip-path: none;
+  background: none;
+}
+
+.eb.img img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* Kartu hero */
@@ -110,7 +127,8 @@
   position: relative;
   aspect-ratio: 3/4.2;
   background: radial-gradient(circle at 50% 30%, var(--c) -80%, #0c1236 75%);
-  border: 2px solid var(--r);
+  --bc: var(--r); /* warna frame aktif: rarity, atau emas bila masuk tim */
+  border: 2px solid var(--bc);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
   overflow: hidden;
   transition: .1s;
@@ -133,7 +151,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 14px 6px 4px;
+  /* Kanan dibuat lebih lega (12px): teks Lv tadinya dempet tepi kartu,
+     apalagi ada potongan diagonal di sudut kanan bawah. */
+  padding: 14px 12px 4px 10px;
   background: linear-gradient(transparent, #000d);
   font-size: 13px;
   font-weight: 700;
@@ -141,21 +161,38 @@
   justify-content: space-between;
 }
 
+/* Baris atas kartu: ikon elemen, pill tim, dan rarity harus satu garis
+   (top sama, tinggi sama 26px, isi ter-center vertikal). */
 .hc .eb {
   position: absolute;
   top: 5px;
   left: 5px;
+  width: 26px;
+  height: 26px;
 }
 
 .hc .rr {
   position: absolute;
-  top: 4px;
+  top: 5px;
   right: 6px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
   font-weight: 700;
   font-style: italic;
   color: var(--r);
   font-size: 15px;
   text-shadow: 0 0 8px var(--r);
+}
+
+/* Varian badge rarity berupa plakat gambar. */
+.rr.img img {
+  display: block;
+  width: auto;
+}
+
+.hc .rr.img img {
+  height: 22px;
 }
 
 .hc.SSR::after {
@@ -166,9 +203,47 @@
   animation: sh 3s infinite;
 }
 
+/* Sudut potong kanan-bawah (clip-path .hc) ditambal segitiga warna rarity
+   agar terbaca sebagai aksen desain, bukan lubang. */
+.hc::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(to top left, var(--bc) 49.9%, transparent 50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Penanda hero anggota tim: frame emas menyala + pill nomor slot. */
 .hc.in {
-  outline: 2px solid var(--cy);
-  outline-offset: -5px;
+  --bc: #ffd76a;
+  box-shadow: 0 0 0 2px #ffd76a, 0 0 18px #ffd76a66, inset 0 0 18px #ffd76a22;
+}
+
+/* Pill tim = pita di tepi bawah portrait, tepat di atas bar nama.
+   Dulu di baris atas, bertabrakan dengan ikon elemen + plakat rarity
+   (tiga elemen itu tidak muat sebaris di kartu sempit). */
+.hc .tm {
+  position: absolute;
+  bottom: 37px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(90deg, #ffd76a, #ffb347);
+  color: #3a2403;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
+  padding: 0 10px;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  box-shadow: 0 2px 10px #000a, 0 0 12px #ffd76a55;
 }
 
 .hc.lk {
@@ -218,9 +293,22 @@
   width: 42%;
   flex: none;
   aspect-ratio: 3/4;
+  position: relative;
   background: radial-gradient(circle at 50% 30%, var(--c) -60%, #0c1236 70%);
   border: 2px solid var(--r);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+/* Tambal sudut potong thumbnail portrait di sheet hero. */
+.hd .pt::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(to top left, var(--r) 49.9%, transparent 50%);
+  pointer-events: none;
 }
 
 .hd .pt svg {
@@ -376,6 +464,19 @@
   border: 2px solid #2a3470;
   overflow: hidden;
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+/* Tambal sudut potong slot strip tim (sama seperti kartu .hc). */
+.slot::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(to top left, var(--bc, #2a3470) 49.9%, transparent 50%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .slot svg {

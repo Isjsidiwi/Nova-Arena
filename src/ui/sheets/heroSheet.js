@@ -56,7 +56,7 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
       <div style="flex:1">
         <div class="dm">${hero.title}</div>
         <h2>${hero.name}</h2>
-        <div style="margin:6px 0">${elementBadge(hero.element)} ${ELEMENTS[hero.element].name} · ${hero.role} · <span style="color:${color}">${hero.rarity}</span></div>
+        <div style="margin:6px 0;display:flex;align-items:center;gap:6px">${elementBadge(hero.element)}<span>${ELEMENTS[hero.element].name} · ${hero.role} · <span style="color:${color}">${hero.rarity}</span></span></div>
         <div class="bar">Level<b>${owned.lv}/${levelCap}</b></div>
         ${statBar('HP', 'hp')}${statBar('ATK', 'atk')}${statBar('DEF', 'def')}${statBar('SPD', 'spd')}
         <div class="bar">Koin<b>${fmt(S.k)}</b></div>

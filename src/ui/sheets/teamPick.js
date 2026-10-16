@@ -17,7 +17,7 @@ export function openTeamPick(slotIndex) {
     <div class="dm">Pilih hero untuk slot ini</div>
     ${currentId && S.team.length > 1 ? '<div class="row"><button class="btn gh" id="clearSlot">KOSONGKAN SLOT</button></div>' : ''}
     <div class="hg" style="margin-top:12px">${heroes
-      .map((owned) => heroCard(HERO_BY_ID[owned.id], owned, S.team.includes(owned.id) ? 'in' : ''))
+      .map((owned) => heroCard(HERO_BY_ID[owned.id], owned, S.team.includes(owned.id) ? 'in' : '', S.team.indexOf(owned.id) + 1))
       .join('')}</div>
   `);
 

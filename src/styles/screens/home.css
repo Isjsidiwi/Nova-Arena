@@ -21,6 +21,13 @@
   pointer-events: none;
 }
 
+/* Dekorasi latar kini ikon medali elemen (pengganti glyph kanji raksasa). */
+#home .kj img {
+  width: 250px;
+  height: 250px;
+  display: block;
+}
+
 #home .ring {
   position: absolute;
   width: 78%;
