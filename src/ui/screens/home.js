@@ -2,7 +2,7 @@ import { $ } from '../dom.js';
 import { S } from '../../store.js';
 import { HERO_BY_ID } from '../../data/heroes.js';
 import { ELEMENTS } from '../../data/elements.js';
-import { CHAPTERS, TOTAL_STAGES, chapterIndexForStage } from '../../data/chapters.js';
+import { CHAPTERS, STAGES_PER_CHAPTER, TOTAL_STAGES, chapterIndexForStage } from '../../data/chapters.js';
 import { GREETING_LINES } from '../../data/lines.js';
 import { teamStripHtml } from '../components/teamStrip.js';
 import { openTeamPick } from '../sheets/teamPick.js';
@@ -41,7 +41,9 @@ export function renderHomeScreen() {
   const hero = HERO_BY_ID[S.team[0]];
   const color = ELEMENTS[hero.element].color;
   const nextStage = Math.min(S.cl + 1, TOTAL_STAGES);
-  const chapter = CHAPTERS[chapterIndexForStage(nextStage)];
+  const nextChapter = chapterIndexForStage(nextStage);
+  const chapter = CHAPTERS[nextChapter];
+  const nextStep = ((nextStage - 1) % STAGES_PER_CHAPTER) + 1;
 
   $('#home').innerHTML = `
     <div class="stage" style="--c:${color}">
@@ -54,7 +56,7 @@ export function renderHomeScreen() {
     </div>
     ${teamStripHtml(S)}
     <div class="go">
-      <div class="inf"><span class="dm">Misi berikut</span><b>${chapter.name} ${nextStage}</b></div>
+      <div class="inf"><span class="dm">Misi berikut</span><b>${chapter.name} ${nextChapter + 1}-${nextStep}</b></div>
       <button class="btn pk" data-pre="${nextStage}">BERTARUNG</button>
     </div>
   `;

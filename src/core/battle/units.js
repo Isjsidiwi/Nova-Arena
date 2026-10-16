@@ -4,6 +4,7 @@ import {
   MOB_NAMES,
   chapterIndexForStage,
   isBossStage,
+  isEliteStage,
   stageScaling,
   enemyCount,
 } from '../../data/chapters.js';
@@ -29,24 +30,31 @@ export function makePlayerUnits(state) {
   });
 }
 
-/** Susunan musuh untuk sebuah stage (boss di tengah pada stage boss). */
+/** Susunan musuh untuk sebuah stage (boss di tengah pada stage boss, elite di stage elite). */
 export function makeEnemyUnits(stage) {
   const chapter = CHAPTERS[chapterIndexForStage(stage)];
   const boss = isBossStage(stage);
+  const elite = isEliteStage(stage);
   const scale = stageScaling(stage);
   const count = enemyCount(stage);
   const units = [];
 
   for (let i = 0; i < count; i++) {
     const isBoss = boss && i === Math.floor(count / 2);
+    const isElite = elite && i === Math.floor(count / 2);
     const element = isBoss ? chapter.bossElement : chapter.elements[i % 3];
-    const base = isBoss ? [2600, 170, 105, 100] : [650, 85, 50, 90 + i * 8];
+    const base = isBoss
+      ? [2600, 170, 105, 100]
+      : isElite
+        ? [1400, 120, 72, 96 + i * 8]
+        : [650, 85, 50, 90 + i * 8];
     units.push({
       side: 'e',
       index: i,
       element,
-      boss: isBoss,
-      name: isBoss ? chapter.boss : MOB_NAMES[element],
+      boss: isBoss || isElite,
+      elite: isElite,
+      name: isBoss ? chapter.boss : isElite ? 'Elit ' + MOB_NAMES[element] : MOB_NAMES[element],
       hp: Math.round(base[0] * scale),
       atk: Math.round(base[1] * (1 + .14 * (stage - 1))),
       def: Math.round(base[2] * (1 + .1 * (stage - 1))),

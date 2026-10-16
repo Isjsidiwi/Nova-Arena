@@ -1,6 +1,14 @@
 import { $ } from '../dom.js';
 import { S } from '../../store.js';
-import { CHAPTERS, enemySummary } from '../../data/chapters.js';
+import {
+  CHAPTERS,
+  STAGES_PER_CHAPTER,
+  chapterIndexForStage,
+  isBossStage,
+  isEliteStage,
+  missionTitle,
+  enemySummary,
+} from '../../data/chapters.js';
 import { teamPower } from '../../core/roster.js';
 import { openBattlePrep } from './battle.js';
 import { fmt } from '../../core/format.js';
@@ -26,7 +34,7 @@ export function initStageScreen() {
 }
 
 export function renderStageScreen() {
-  const chapterIndex = S.tc ?? Math.min(Math.floor(S.cl / 5), 2);
+  const chapterIndex = S.tc ?? Math.min(chapterIndexForStage(S.cl + 1), CHAPTERS.length - 1);
   S.tc = chapterIndex;
   const chapter = CHAPTERS[chapterIndex];
 
@@ -37,15 +45,15 @@ export function renderStageScreen() {
       .join('')}</div>
     <div class="scr" style="--c:${chapter.color}">
       <div class="dm" style="margin-bottom:8px">${chapter.name}</div>
-      ${[1, 2, 3, 4, 5]
+      ${Array.from({ length: STAGES_PER_CHAPTER }, (_, index) => index + 1)
         .map((step) => {
-          const stage = chapterIndex * 5 + step;
+          const stage = chapterIndex * STAGES_PER_CHAPTER + step;
           const locked = stage > S.cl + 1;
           const stars = S.stars[stage] || 0;
-          const title = step === 5 ? 'Boss: ' + chapter.boss : 'Patroli ' + chapter.name;
-          return `<button class="stg ${locked ? 'lk' : ''}" data-pre="${stage}">
+          const cls = isBossStage(stage) ? ' bs' : isEliteStage(stage) ? ' el' : '';
+          return `<button class="stg${cls} ${locked ? 'lk' : ''}" data-pre="${stage}">
             <span class="n">${chapterIndex + 1}-${step}</span>
-            <span class="t">${title}<small>${locked ? 'Terkunci' : 'Musuh: ' + enemySummary(stage)}</small></span>
+            <span class="t">${missionTitle(stage)}<small>${locked ? 'Terkunci' : 'Musuh: ' + enemySummary(stage)}</small></span>
             <span class="stars">${[1, 2, 3].map((j) => `<span class="${j <= stars ? 'f' : ''}">★</span>`).join('')}</span>
           </button>`;
         })

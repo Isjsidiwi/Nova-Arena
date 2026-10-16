@@ -341,6 +341,15 @@
   filter: grayscale(1);
 }
 
+.stg.el .n {
+  color: var(--pk);
+}
+
+.stg.bs .n {
+  color: var(--au);
+  text-shadow: 0 0 12px #ffd76a66;
+}
+
 .stars {
   color: #3a4170;
   letter-spacing: 2px;

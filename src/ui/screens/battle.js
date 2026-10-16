@@ -1,6 +1,6 @@
 import { $, $$, sleep } from '../dom.js';
 import { S } from '../../store.js';
-import { CHAPTERS, STAGES_PER_CHAPTER, chapterIndexForStage, isBossStage, enemySummary } from '../../data/chapters.js';
+import { CHAPTERS, STAGES_PER_CHAPTER, chapterIndexForStage, missionTitle, enemySummary } from '../../data/chapters.js';
 import { ELEMENTS } from '../../data/elements.js';
 import { ASSETS } from '../../config/assets.js';
 import { teamPower } from '../../core/roster.js';
@@ -42,13 +42,12 @@ export function openBattlePrep(stage) {
   const chapterIndex = chapterIndexForStage(stage);
   const chapter = CHAPTERS[chapterIndex];
   const step = ((stage - 1) % STAGES_PER_CHAPTER) + 1;
-  const boss = isBossStage(stage);
   const firstClear = stage > S.cl;
   const rewards = battleRewards(stage, true, firstClear);
 
   const overlay = openSheet(`
     <div class="ttl">MISI ${chapterIndex + 1}-${step}<small>Kekuatan ${fmt(teamPower(S))}</small></div>
-    <div class="dm" style="margin-bottom:6px">${chapter.name}${boss ? ` · BOSS: ${chapter.boss}` : ''}</div>
+    <div class="dm" style="margin-bottom:6px">${missionTitle(stage)} · ${chapter.name}</div>
     <div class="bar">Musuh<b>${enemySummary(stage)}</b></div>
     <div class="bar">Hadiah<b>+${fmt(rewards.coins)} Koin${firstClear ? ` · +${fmt(rewards.gems)} Gems` : ''}</b></div>
     <div class="dm" style="margin-top:10px">Ketuk slot untuk ubah susunan tim:</div>
