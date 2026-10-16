@@ -116,3 +116,49 @@
 .say.on {
   opacity: 1;
 }
+
+/* Transisi rotasi portrait Beranda: keluar geser kiri + fade, masuk dari kanan. */
+#lead {
+  transition: opacity .35s ease;
+}
+
+#lead svg {
+  transition: transform .45s ease;
+}
+
+#home .kj {
+  transition: opacity .35s ease;
+}
+
+#home .kj img {
+  transition: transform .4s ease;
+}
+
+#home .ring {
+  transition: border-color .6s ease;
+}
+
+#home .plate {
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+#home .stage.out #lead {
+  opacity: 0;
+}
+
+#home .stage.out #lead svg {
+  transform: translateX(-30px);
+}
+
+#home .stage.out .kj {
+  opacity: 0;
+}
+
+#home .stage.out .kj img {
+  transform: scale(.9);
+}
+
+#home .stage.out .plate {
+  opacity: 0;
+  transform: translateY(12px);
+}

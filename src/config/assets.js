@@ -6,14 +6,17 @@ export const ASSETS = {
     // aset statis sampai 4 jam, query versi membuat URL dianggap aset baru.
     sylva: 'assets/portraits/sylva.webp?v=2',
     arka: 'assets/portraits/arka.webp?v=1',
+    mira: 'assets/portraits/mira.webp?v=1',
   },
   icon: {
     sylva: 'assets/icons/sylva.webp?v=3',
     arka: 'assets/icons/arka.webp?v=1',
+    mira: 'assets/icons/mira.webp?v=1',
   },
   cutin: {
     sylva: 'assets/cutins/sylva.webp?v=3',
     arka: 'assets/cutins/arka.webp?v=1',
+    mira: 'assets/cutins/mira.webp?v=1',
   },
   // Badge plakat per rarity. Dipakai rarityBadge().
   rarity: {
