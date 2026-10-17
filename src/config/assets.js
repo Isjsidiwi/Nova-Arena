@@ -2,36 +2,37 @@
 // null = pakai art SVG bawaan (hero/item) / SFX sintetis.
 export const ASSETS = {
   portrait: {
-    // ?v= wajib dinaikkan setiap file diganti: Cloudflare + browser meng-cache
-    // aset statis sampai 4 jam, query versi membuat URL dianggap aset baru.
-    sylva: 'assets/portraits/sylva.webp?v=2',
-    arka: 'assets/portraits/arka.webp?v=1',
-    mira: 'assets/portraits/mira.webp?v=1',
+    // Tanpa parameter versi: server mengirim Cache-Control: no-store dan
+    // Cloudflare BYPASS, jadi file terbaru selalu diambil. (Dulu pakai ?v=
+    // karena Cloudflare meng-cache 4 jam; sudah dinetralkan no-store.)
+    sylva: 'assets/portraits/sylva.webp',
+    arka: 'assets/portraits/arka.webp',
+    mira: 'assets/portraits/mira.webp',
   },
   icon: {
-    sylva: 'assets/icons/sylva.webp?v=3',
-    arka: 'assets/icons/arka.webp?v=1',
-    mira: 'assets/icons/mira.webp?v=1',
+    sylva: 'assets/icons/sylva.webp',
+    arka: 'assets/icons/arka.webp',
+    mira: 'assets/icons/mira.webp',
   },
   cutin: {
-    sylva: 'assets/cutins/sylva.webp?v=3',
-    arka: 'assets/cutins/arka.webp?v=1',
-    mira: 'assets/cutins/mira.webp?v=1',
+    sylva: 'assets/cutins/sylva.webp',
+    arka: 'assets/cutins/arka.webp',
+    mira: 'assets/cutins/mira.webp',
   },
   // Badge plakat per rarity. Dipakai rarityBadge().
   rarity: {
-    R: 'assets/badges/r.webp?v=1',
-    SR: 'assets/badges/sr.webp?v=1',
-    SSR: 'assets/badges/ssr.webp?v=1',
+    R: 'assets/badges/r.webp',
+    SR: 'assets/badges/sr.webp',
+    SSR: 'assets/badges/ssr.webp',
   },
   // Ikon medali per elemen (kode elemen: a/w/t/g/l/d). Dipakai elementBadge().
   element: {
-    a: 'assets/elements/api.webp?v=1',
-    w: 'assets/elements/air.webp?v=1',
-    t: 'assets/elements/petir.webp?v=1',
-    g: 'assets/elements/angin.webp?v=1',
-    l: 'assets/elements/cahaya.webp?v=1',
-    d: 'assets/elements/gelap.webp?v=1',
+    a: 'assets/elements/api.webp',
+    w: 'assets/elements/air.webp',
+    t: 'assets/elements/petir.webp',
+    g: 'assets/elements/angin.webp',
+    l: 'assets/elements/cahaya.webp',
+    d: 'assets/elements/gelap.webp',
   },
   bg: {
     home: null,
