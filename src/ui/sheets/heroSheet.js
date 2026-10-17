@@ -52,7 +52,7 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
 
   const overlay = openSheet(`
     <div class="hd">
-      <div class="pt" style="--r:${color};--c:${ELEMENTS[hero.element].color}">${heroArt(hero)}</div>
+      <div class="pt ${hero.rarity}" style="--r:${color};--c:${ELEMENTS[hero.element].color}">${heroArt(hero)}</div>
       <div style="flex:1">
         <div class="dm">${hero.title}</div>
         <h2>${hero.name}</h2>

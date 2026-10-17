@@ -15,7 +15,7 @@ import { sfx } from '../../core/audio.js';
 
 /* --- Rotasi portrait Beranda: hero yang tampil bergantian mengikuti slot
    tim yang terisi, tiap 10 detik, dengan transisi geser + fade. --- */
-const LEAD_ROTATE_MS = 10000;
+const LEAD_ROTATE_MS = 5000;
 let leadTimer = null;
 let leadIdx = 0;
 let leadHeroId = null;
