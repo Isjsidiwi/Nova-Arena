@@ -219,3 +219,17 @@
   color: var(--cy);
   box-shadow: 0 0 14px #52e0ff55;
 }
+
+/* Catatan afinitas item (cocok / bentrok) */
+.anote {
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 5px;
+  padding: 3px 9px;
+  display: inline-block;
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+.anote.good { background: #14532d; color: #7dffb0; }
+.anote.bad { background: #5a1626; color: #ff8a8a; }
+.anote.mid { background: #4a3a10; color: #ffd76a; }

@@ -1,4 +1,6 @@
-import { SLOT_BASE_VALUES, SLOT_STATS, RARITY_ITEM_MULTIPLIER, ITEM_LEVEL_CAP } from '../data/items.js';
+import { SLOT_BASE_VALUES, SLOT_STATS, SLOT_NAMES, RARITY_PREFIX, RARITY_ITEM_MULTIPLIER, ITEM_LEVEL_CAP, WEAPON_TYPES, AFFINITY } from '../data/items.js';
+import { ADVANTAGE, ELEMENTS } from '../data/elements.js';
+import { HERO_BY_ID } from '../data/heroes.js';
 import { RARITY } from '../data/rarity.js';
 import { itemUpgradeCost } from './economy.js';
 
@@ -10,6 +12,65 @@ export const itemValue = (item) =>
 export function itemText(item) {
   if (item.s === 4) return `+${Math.round(itemValue(item) * 100)}% ATK`;
   return `+${Math.round(itemValue(item))} ${['ATK', 'HP', 'DEF', 'SPD'][item.s]}`;
+}
+
+/** Nama lengkap item: prefix rarity + (tipe senjata | nama slot) + elemen. */
+export function itemName(item) {
+  const base = item.s === 0 && item.w ? WEAPON_TYPES[item.w] || 'Senjata' : SLOT_NAMES[item.s];
+  const element = item.e ? ` ${ELEMENTS[item.e].name}` : '';
+  return `${RARITY_PREFIX[item.r]} ${base}${element}`;
+}
+
+/** Faktor tipe senjata: hanya slot 0 & hanya bila item punya tipe (w). */
+export function weaponFactor(item, hero) {
+  if (!hero || item.s !== 0 || !item.w) return AFFINITY.neutral;
+  return item.w === hero.weapon ? AFFINITY.weaponMatch : AFFINITY.weaponMismatch;
+}
+
+/** Faktor elemen item terhadap elemen hero. Item lama tanpa e = netral. */
+export function elementFactor(item, hero) {
+  if (!hero || !item.e) return AFFINITY.neutral;
+  if (item.e === hero.element) return AFFINITY.elementSame;
+  if (ADVANTAGE[hero.element] === item.e) return AFFINITY.elementClash;
+  if (ADVANTAGE[item.e] === hero.element) return AFFINITY.elementBeaten;
+  return AFFINITY.neutral;
+}
+
+/** Faktor gabungan kecocokan item untuk seorang hero (bisa negatif). */
+export const affinityFactor = (item, hero) => weaponFactor(item, hero) * elementFactor(item, hero);
+
+/** Nilai efektif item bila dipakai hero tertentu (bisa negatif). */
+export const effectiveItemValue = (item, hero) => itemValue(item) * affinityFactor(item, hero);
+
+/** Teks nilai efektif untuk hero, mis. "-12 ATK" / "+10% ATK". */
+export function itemTextFor(item, hero) {
+  const value = effectiveItemValue(item, hero);
+  const sign = value < 0 ? '-' : '+';
+  if (item.s === 4) return `${sign}${Math.abs(Math.round(value * 100))}% ATK`;
+  return `${sign}${Math.abs(Math.round(value))} ${SLOT_STATS[item.s].toUpperCase()}`;
+}
+
+/** Penjelasan kecocokan untuk UI: [{ label, kind: 'good'|'bad'|'mid' }]. */
+export function affinityNotes(item, hero) {
+  if (!hero) return [];
+  const notes = [];
+  if (item.s === 0 && item.w) {
+    notes.push(
+      item.w === hero.weapon
+        ? { label: `Senjata cocok: ${WEAPON_TYPES[item.w]}`, kind: 'good' }
+        : { label: `Senjata tidak cocok: ${WEAPON_TYPES[item.w]} ≠ ${WEAPON_TYPES[hero.weapon]}`, kind: 'bad' },
+    );
+  }
+  if (item.e) {
+    const factor = elementFactor(item, hero);
+    if (factor === AFFINITY.elementSame)
+      notes.push({ label: `Resonansi ${ELEMENTS[item.e].name} ×1,25`, kind: 'good' });
+    else if (factor === AFFINITY.elementClash)
+      notes.push({ label: `Bentrok elemen: ${ELEMENTS[hero.element].name} mengalahkan ${ELEMENTS[item.e].name}`, kind: 'bad' });
+    else if (factor === AFFINITY.elementBeaten)
+      notes.push({ label: `Elemen kurang cocok ×0,5`, kind: 'mid' });
+  }
+  return notes;
 }
 
 export const findItem = (state, uid) => state.eq.find((item) => item.u === uid) || null;
@@ -26,9 +87,10 @@ export function equippedFor(state, heroId) {
 /** Total bonus stat dari seluruh item hero. */
 export function bonusFor(state, heroId) {
   const bonus = { atk: 0, hp: 0, def: 0, spd: 0, ap: 0 };
+  const hero = HERO_BY_ID[heroId] || null;
   (state.lo[heroId] || []).forEach((uid) => {
     const item = state.eq.find((x) => x.u === uid);
-    if (item) bonus[SLOT_STATS[item.s]] += itemValue(item);
+    if (item) bonus[SLOT_STATS[item.s]] += effectiveItemValue(item, hero);
   });
   return bonus;
 }

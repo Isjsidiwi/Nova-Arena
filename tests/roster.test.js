@@ -8,6 +8,8 @@ import {
   toggleTeam,
   autoTeam,
   sortedOwned,
+  teamFirst,
+  teamFirst,
 } from '../src/core/roster.js';
 import { heroLevelCost } from '../src/core/economy.js';
 import { HERO_BY_ID } from '../src/data/heroes.js';
@@ -79,6 +81,16 @@ describe('power', () => {
     const stats = heroStats(state, 'sylva');
     expect(stats.hp).toBeGreaterThan(0);
     expect(teamPower(state)).toBeGreaterThan(0);
+  });
+
+  it('teamFirst menaruh anggota tim di depan sesuai urutan slot', () => {
+    const owned = [{ id: 'mira' }, { id: 'volta' }, { id: 'arka' }, { id: 'raka' }, { id: 'sylva' }];
+    const team = ['sylva', 'arka', 'volta']; // TIM 1, 2, 3
+    const list = teamFirst(owned, team);
+    expect(list.map((o) => o.id)).toEqual(['sylva', 'arka', 'volta', 'mira', 'raka']);
+    // Array asal tidak berubah & non-tim mempertahankan urutan masuk (stabil).
+    expect(owned.map((o) => o.id)).toEqual(['mira', 'volta', 'arka', 'raka', 'sylva']);
+    expect(teamFirst(owned, []).map((o) => o.id)).toEqual(owned.map((o) => o.id));
   });
 
   it('sortedOwned mengurutkan SSR lebih dulu', () => {

@@ -5,6 +5,7 @@ import { initHomeScreen, renderHomeScreen } from './ui/screens/home.js';
 import { initHeroScreen, renderHeroScreen } from './ui/screens/heroes.js';
 import { initGachaScreen, renderGachaScreen } from './ui/screens/gacha.js';
 import { initStageScreen, renderStageScreen } from './ui/screens/stages.js';
+import { initDevPanel } from './ui/devPanel.js';
 
 initParticles();
 initNav();
@@ -18,5 +19,7 @@ registerScreen('home', { render: renderHomeScreen });
 registerScreen('hero', { render: renderHeroScreen });
 registerScreen('gacha', { render: renderGachaScreen });
 registerScreen('stage', { render: renderStageScreen });
+
+initDevPanel();
 
 go('home');

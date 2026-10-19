@@ -358,3 +358,282 @@
   height: 100%;
   margin: 0;
 }
+
+/* Overlay jeda battle */
+#bt .pov {
+  align-items: center;
+  justify-content: center;
+  z-index: 85;
+}
+
+.pbox {
+  width: 78%;
+  max-width: 320px;
+  margin: auto;
+  text-align: center;
+  padding: 22px 20px;
+  background: linear-gradient(#141c4a, #0a0f2c);
+  border-top: 4px solid var(--cy);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: pop .3s;
+}
+
+.pbox h2 {
+  font-size: 34px;
+  font-style: italic;
+  letter-spacing: 6px;
+  color: var(--cy);
+  text-shadow: 0 0 18px #52e0ff66;
+}
+
+.pbox .btn {
+  width: 100%;
+}
+
+/* ================= REVAMP BATTLE (modern) ================= */
+
+/* Label misi kecil di bawah nomor ronde */
+#bt .top .rd small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: #8f9bd4;
+  font-style: normal;
+}
+
+/* Grup tombol kecepatan menyatu */
+.spdgrp {
+  display: flex;
+  background: #131a42;
+  padding: 3px;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.spdgrp .sp {
+  background: transparent;
+  clip-path: none;
+  width: 38px;
+  padding: 3px 0;
+}
+
+.spdgrp .sp.on {
+  background: var(--cy);
+  color: #00222c;
+}
+
+/* Strip urutan giliran */
+.tord {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  padding: 3px 8px 1px;
+  min-height: 30px;
+  z-index: 3;
+}
+
+.tord .ti {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #2a3470;
+  background: #0c1236;
+  opacity: .65;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+  flex: none;
+}
+
+.tord .ti svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tord .ti .tglyph {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tord .ti.act {
+  border-color: var(--au);
+  opacity: 1;
+  transform: scale(1.22);
+  box-shadow: 0 0 12px var(--au);
+}
+
+/* Animasi masuk unit ke arena */
+@keyframes uin {
+  from { opacity: 0; transform: translateY(16px) scale(.9); }
+}
+
+.u {
+  animation: uin .45s cubic-bezier(.2, .9, .3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Penanda panah di atas unit yang sedang beraksi */
+.u.act::before {
+  content: '▼';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--au);
+  font-size: 12px;
+  text-shadow: 0 0 9px var(--au);
+  animation: btbob .45s infinite alternate;
+  z-index: 6;
+}
+
+@keyframes btbob {
+  from { margin-top: 0; }
+  to { margin-top: 4px; }
+}
+
+/* Plat nama unit */
+.un {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  color: #eef1ff;
+  text-shadow: 0 1px 3px #000, 0 0 6px #000;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.u.e.bs .un {
+  color: #ffb3c2;
+  font-size: 12.5px;
+}
+
+/* Bar HP berlapis: ghost tertinggal menunjukkan potongan damage terakhir */
+.u .b.h {
+  height: 7px;
+  position: relative;
+  overflow: hidden;
+}
+
+.u .b.h i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.u .b.h .gh {
+  background: #ff5d7acc;
+  transition: width .9s ease .4s;
+  z-index: 1;
+}
+
+.u .b.h .mn {
+  transition: width .25s;
+  z-index: 2;
+}
+
+/* Angka HP (pemain & boss) */
+.hpnum {
+  font-size: 10px;
+  text-align: center;
+  color: #cfe8ff;
+  opacity: .9;
+  text-shadow: 0 1px 2px #000;
+  margin-top: 1px;
+  letter-spacing: .4px;
+}
+
+/* HP kritis: bar berdenyut merah */
+.u.low .b.h .mn {
+  background: linear-gradient(90deg, #ff3d3d, #ff8a5a);
+  animation: lowpulse .45s infinite alternate;
+}
+
+@keyframes lowpulse {
+  to { filter: brightness(1.6); }
+}
+
+/* Kematian unit: kilat lalu menyusut hilang */
+.u.dead {
+  animation: die .45s forwards;
+}
+
+@keyframes die {
+  30% { filter: grayscale(1) brightness(2); transform: scale(1.06); opacity: 1; }
+  100% { opacity: 0; transform: scale(.82) translateY(10px); filter: grayscale(1) blur(3px); }
+}
+
+/* Label taktis di atas angka damage */
+.pp .ptag {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  text-align: center;
+  text-shadow: 0 1px 0 #000, 0 0 8px #000;
+}
+
+/* Pembungkus tombol ult + nama hero */
+.uw {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.uw .ult {
+  width: 100%;
+  max-width: 76px;
+}
+
+.uw span {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #aebaff;
+  letter-spacing: .6px;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* Splash pembuka pertarungan */
+.vs {
+  position: absolute;
+  inset: 0;
+  z-index: 65;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+  background: radial-gradient(60% 34% at 50% 50%, #05081add, transparent 75%);
+  animation: vsin 1.2s forwards;
+}
+
+.vs b {
+  font-size: 42px;
+  font-style: italic;
+  letter-spacing: 5px;
+  color: #fff;
+  text-shadow: 0 0 24px var(--cy), 0 3px 0 #000;
+}
+
+.vs small {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--cy);
+}
+
+@keyframes vsin {
+  0% { opacity: 0; transform: scale(1.12); }
+  16% { opacity: 1; transform: scale(1); }
+  74% { opacity: 1; }
+  100% { opacity: 0; transform: scale(.98); }
+}

@@ -31,6 +31,17 @@ describe('state default & migrasi', () => {
     expect(state.uid).toBe(6);
   });
 
+  it('migrasi bintang otomatis -> manual: dp menjadi saldo (total - biaya terbakar), idempotent', () => {
+    // Era otomatis: hero bintang 3 berarti 4 duplikat terserap -> saldo 0.
+    const old = { heroes: [{ id: 'sylva', lv: 5, st: 3, dp: 4 }, { id: 'arka', lv: 1, st: 1, dp: 2 }] };
+    const state = migrateState(old);
+    expect(state.heroes[0].dp).toBe(0);
+    expect(state.heroes[1].dp).toBe(2); // bintang 1 belum membakar apa pun
+    migrateState(state);
+    expect(state.heroes[0].dp).toBe(0); // tidak terkonversi dua kali
+    expect(state.heroes[1].dp).toBe(2);
+  });
+
   it('save lama tanpa gv mendapat item awal', () => {
     const old = { k: 1, g: 2, heroes: [{ id: 'sylva', lv: 1 }], team: ['sylva'], cl: 0, stars: {}, pi: 0, ps: 0 };
     const state = migrateState(old);

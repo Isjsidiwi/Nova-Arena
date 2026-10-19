@@ -3,9 +3,10 @@ import { $, sleep } from './dom.js';
 import { RARITY } from '../data/rarity.js';
 import { ELEMENTS } from '../data/elements.js';
 import { RARITY_PREFIX, SLOT_NAMES } from '../data/items.js';
-import { itemText } from '../core/equipment.js';
+import { itemText, itemName } from '../core/equipment.js';
 import { heroArt, itemArt, elementBadge, rarityBadge } from './art.js';
 import { heroCard, itemCard } from './components/cards.js';
+import { S } from '../store.js';
 import { burst, spawnParticle } from './particles.js';
 import { sfx } from '../core/audio.js';
 import { fmt } from '../core/format.js';
@@ -69,13 +70,17 @@ async function playIntro(rv, rarity) {
 function renderResultCard(rv, result, allowSkip) {
   const isItem = result.kind === 'item';
   const color = RARITY[result.rarity].color;
-  const name = isItem ? `${RARITY_PREFIX[result.rarity]} ${SLOT_NAMES[result.item.s]}` : result.hero.name;
+  const name = isItem ? itemName(result.item) : result.hero.name;
   const accent = isItem ? color : ELEMENTS[result.hero.element].color;
   const subtitle = isItem ? itemText(result.item) : `${elementBadge(result.hero.element)} ${result.hero.title}`;
   const dupText = isItem
     ? 'ITEM BARU!'
     : result.duplicate
-      ? `Duplikat · +${fmt(result.coins)} Koin`
+      ? result.star
+        ? result.star.canUpgrade
+          ? `Duplikat tersimpan · ${result.star.dupes} duplikat — cukup untuk NAIK BINTANG!`
+          : `Duplikat tersimpan · saldo ${result.star.dupes}/${result.star.nextCost} ke ★${result.star.stars + 1}`
+        : `Duplikat · Bintang maks · +${fmt(result.coins)} Koin`
       : 'HERO BARU!';
 
   rv.innerHTML = `
@@ -127,7 +132,7 @@ function startGoldenRain() {
 
 async function showSummary(rv, results) {
   rv.innerHTML = `
-    <div class="mini">${results.map((result) => (result.kind === 'item' ? itemCard(result.item) : heroCard(result.hero))).join('')}</div>
+    <div class="mini">${results.map((result) => (result.kind === 'item' ? itemCard(result.item) : heroCard(result.hero, S.heroes.find((h) => h.id === result.hero.id) || null))).join('')}</div>
     <button class="btn" id="revealOk" style="margin-top:24px">OKE</button>
   `;
   await new Promise((resolve) => {

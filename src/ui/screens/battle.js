@@ -36,6 +36,8 @@ let battle = null;
 let currentStage = 0;
 let running = false;
 let speed = 1;
+let paused = false;
+let fightSeq = 0; // token: loop battle lama tidak boleh lanjut setelah restart
 
 /**
  * Muat gambar cut-in seluruh tim di latar sejak sheet persiapan dibuka.
@@ -102,68 +104,100 @@ async function startFight(stage) {
   preloadCutins();
   currentStage = stage;
   speed = 1;
+  paused = false;
   running = true;
+  const seq = ++fightSeq;
   battle = createBattle({ players: makePlayerUnits(S), enemies: makeEnemyUnits(stage) });
 
   renderBattleField();
   bindBtClicks();
 
   for (const event of battle.run()) {
-    if (!running) return;
+    if (!running || seq !== fightSeq) return;
     await handleEvent(event);
-    if (!running) return;
+    if (!running || seq !== fightSeq) return;
   }
 }
 
 function renderBattleField() {
+  const unitHtml = (unit, delay) => {
+    const isPlayer = unit.side === 'p';
+    return `
+      <div class="u ${unit.side} ${unit.boss ? 'bs' : ''}" id="u-${unit.side}-${unit.index}" style="--d:${delay}ms">
+        ${elementBadge(unit.element)}
+        <div class="a">${isPlayer ? heroArt(unit.hero) : monsterArt(unit.element, unit.boss)}</div>
+        <div class="un">${unit.boss ? '👑 ' : ''}${unit.name}</div>
+        <div class="b h"><i class="gh" style="width:100%"></i><i class="mn" style="width:100%"></i></div>
+        ${isPlayer ? '<div class="b n"><i style="width:0%"></i></div>' : ''}
+        ${isPlayer || unit.boss ? `<div class="hpnum">${fmt(unit.hp)}/${fmt(unit.maxHp)}</div>` : ''}
+      </div>`;
+  };
+
   const enemyRow = battle.units
     .filter((unit) => unit.side === 'e')
-    .map((unit) => `
-      <div class="u e ${unit.boss ? 'bs' : ''}" id="u-e-${unit.index}">
-        ${elementBadge(unit.element)}
-        <div class="a">${monsterArt(unit.element, unit.boss)}</div>
-        <div class="b h"><i style="width:100%"></i></div>
-      </div>`)
+    .map((unit, i) => unitHtml(unit, i * 110))
     .join('');
 
   const playerRow = battle.units
     .filter((unit) => unit.side === 'p')
-    .map((unit) => `
-      <div class="u p" id="u-p-${unit.index}">
-        ${elementBadge(unit.element)}
-        <div class="a">${heroArt(unit.hero)}</div>
-        <div class="b h"><i style="width:100%"></i></div>
-        <div class="b n"><i style="width:0%"></i></div>
-      </div>`)
+    .map((unit, i) => unitHtml(unit, 200 + i * 110))
     .join('');
 
   const ultBar = battle.units
     .filter((unit) => unit.side === 'p')
-    .map((unit) => `<button class="ult" data-u="${unit.index}" style="--p:${unit.energy}"><div>${heroArt(unit.hero, 'icon')}</div></button>`)
+    .map((unit) => `<div class="uw"><button class="ult" data-u="${unit.index}" style="--p:${unit.energy}"><div>${heroArt(unit.hero, 'icon')}</div></button><span>${unit.name}</span></div>`)
     .join('');
 
+  const chapterIndex = chapterIndexForStage(currentStage);
+  const step = ((currentStage - 1) % STAGES_PER_CHAPTER) + 1;
+
   const bt = $('#bt');
-  bt.style.setProperty('--bc', CHAPTERS[chapterIndexForStage(currentStage)].color + '33');
+  bt.style.setProperty('--bc', CHAPTERS[chapterIndex].color + '33');
   bt.classList.add('on');
   bt.innerHTML = `
     <div class="top">
-      <div class="rd">RONDE 1</div>
-      <button class="sp on" data-spd="1">1x</button>
-      <button class="sp" data-spd="2">2x</button>
-      <button class="sp" data-spd="4">4x</button>
+      <div class="rd">RONDE 1<small>MISI ${chapterIndex + 1}-${step}</small></div>
+      <div class="spdgrp">
+        <button class="sp on" data-spd="1">1x</button>
+        <button class="sp" data-spd="2">2x</button>
+        <button class="sp" data-spd="4">4x</button>
+      </div>
+      <button class="sp" id="pauseBtn" style="width:auto;padding:5px 12px">❚❚</button>
       <button class="sp" id="surrender" style="width:auto;padding:5px 12px">SERAH</button>
     </div>
+    <div class="tord" id="tord"></div>
     <div class="fld">
       <div class="rw">${enemyRow}</div>
       <div class="rw">${playerRow}</div>
     </div>
     <div class="ub">${ultBar}</div>
     <div id="cut"></div>
+    <div class="vs"><b>MISI ${chapterIndex + 1}-${step}</b><small>${missionTitle(currentStage)}</small></div>
     <div aria-hidden="true" style="position:absolute;left:0;bottom:0;width:100%;height:30%;opacity:0;pointer-events:none;overflow:hidden">${battle.units
       .filter((unit) => unit.side === 'p' && ASSETS.cutin[unit.hero.id])
       .map((unit) => heroArt(unit.hero, 'cutin'))
       .join('')}</div>
   `;
+  renderTurnOrder(null);
+}
+
+/** Strip urutan giliran (SPD tertinggi dulu); unit aktif bercincin emas. */
+function renderTurnOrder(activeUnit) {
+  const strip = $('#tord');
+  if (!strip || !battle) return;
+  const order = battle.units
+    .filter((unit) => unit.alive)
+    .sort((a, b) => b.spd - a.spd);
+  strip.innerHTML = order
+    .map((unit) => {
+      const active = activeUnit && unit.side === activeUnit.side && unit.index === activeUnit.index;
+      const face =
+        unit.side === 'p'
+          ? heroArt(unit.hero, 'icon')
+          : `<span class="tglyph" style="color:${ELEMENTS[unit.element].color}">${ELEMENTS[unit.element].glyph}</span>`;
+      return `<span class="ti ${unit.side} ${active ? 'act' : ''}" title="${unit.name}">${face}</span>`;
+    })
+    .join('');
 }
 
 function bindBtClicks() {
@@ -171,6 +205,12 @@ function bindBtClicks() {
   bt.onclick = (event) => {
     const button = event.target.closest('button');
     if (!button) return;
+    if (paused) return; // saat jeda, hanya tombol overlay jeda yang aktif
+
+    if (button.id === 'pauseBtn') {
+      pauseFight();
+      return;
+    }
 
     if (button.dataset.spd) {
       speed = +button.dataset.spd;
@@ -185,7 +225,22 @@ function bindBtClicks() {
   };
 }
 
-const rest = (ms) => sleep(Math.max(1, ms / speed));
+/**
+ * Tunggu ms (diskalakan kecepatan) yang SADAR JEDA: selama paused, waktu
+ * tidak berjalan. Polling per 30ms; berhenti total bila battle berakhir.
+ */
+async function rest(ms) {
+  const target = ms / speed;
+  let elapsed = 0;
+  let last = performance.now();
+  while (elapsed < target) {
+    if (!running) return;
+    await sleep(30);
+    const now = performance.now();
+    if (!paused) elapsed += now - last;
+    last = now;
+  }
+}
 
 const unitEl = (unit) => document.getElementById(`u-${unit.side}-${unit.index}`);
 
@@ -193,12 +248,14 @@ async function handleEvent(event) {
   switch (event.type) {
     case 'round': {
       const roundLabel = $('#bt .rd');
-      if (roundLabel) roundLabel.textContent = 'RONDE ' + event.round;
+      if (roundLabel) roundLabel.innerHTML = `RONDE ${event.round}<small>MISI ${chapterIndexForStage(currentStage) + 1}-${((currentStage - 1) % STAGES_PER_CHAPTER) + 1}</small>`;
+      renderTurnOrder(null);
       await rest(DELAYS.round);
       break;
     }
     case 'turnStart':
       unitEl(event.unit)?.classList.add('act');
+      renderTurnOrder(event.unit);
       updateUnitBars();
       await rest(DELAYS.turnStart);
       break;
@@ -225,6 +282,7 @@ async function handleEvent(event) {
       break;
     case 'death':
       unitEl(event.unit)?.classList.add('dead');
+      renderTurnOrder(null);
       sfx('hit');
       updateUnitBars();
       await rest(DELAYS.death);
@@ -278,7 +336,17 @@ function showDamage(event) {
       : event.elementMultiplier < 1
         ? '#8f9bd4'
         : '#fff';
-  showPopup(event.target, `-${fmt(event.amount)}${event.crit ? '!' : ''}`, color, event.crit);
+  const tag = event.crit ? 'KRITIS!' : event.elementMultiplier > 1 ? 'LEMAH!' : event.elementMultiplier < 1 ? 'DITAHAN' : '';
+  const el = unitEl(event.target);
+  if (el) {
+    const popup = document.createElement('span');
+    popup.className = 'pp';
+    popup.style.color = color;
+    if (event.crit) popup.style.fontSize = '32px';
+    popup.innerHTML = `${tag ? `<small class="ptag">${tag}</small>` : ''}-${fmt(event.amount)}${event.crit ? '!' : ''}`;
+    el.appendChild(popup);
+    setTimeout(() => popup.remove(), 1000);
+  }
   unitEl(event.target)?.animate(
     [{ filter: 'brightness(2.5) saturate(0)' }, {}],
     { duration: 220 },
@@ -321,10 +389,14 @@ function updateUnitBars() {
   for (const unit of battle.units) {
     const el = unitEl(unit);
     if (!el) continue;
-    const hpBar = el.querySelector('.b.h i');
-    if (hpBar) hpBar.style.width = `${Math.max(0, (unit.hp / unit.maxHp) * 100)}%`;
-    const energyBar = el.querySelector('.b.n i');
-    if (energyBar) energyBar.style.width = `${Math.min(100, unit.energy)}%`;
+    const pct = Math.max(0, (unit.hp / unit.maxHp) * 100);
+    const main = el.querySelector('.b.h .mn');
+    if (main) main.style.width = `${pct}%`;
+    const ghost = el.querySelector('.b.h .gh');
+    if (ghost) ghost.style.width = `${pct}%`;
+    const num = el.querySelector('.hpnum');
+    if (num) num.textContent = `${fmt(Math.max(0, unit.hp))}/${fmt(unit.maxHp)}`;
+    el.classList.toggle('low', unit.alive && pct <= 30);
   }
   updateUltButtons();
 }
@@ -383,9 +455,59 @@ async function handleEnd(event) {
   refresh();
 }
 
+/* ================= JEDA BATTLE ================= */
+
+function pauseFight() {
+  if (!running || paused) return;
+  paused = true;
+  sfx('tap');
+  // Bekukan animasi WAAPI yang sedang berjalan di arena.
+  $('#bt').getAnimations({ subtree: true }).forEach((a) => a.pause());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ov pov';
+  overlay.innerHTML = `
+    <div class="pbox">
+      <h2>JEDA</h2>
+      <p class="dm">Misi ${chapterIndexForStage(currentStage) + 1}-${((currentStage - 1) % STAGES_PER_CHAPTER) + 1} · Ronde ${battle ? battle.round : 1}</p>
+      <button class="btn cy" id="resumeBtn">LANJUTKAN</button>
+      <button class="btn gh" id="restartBtn">ULANGI MISI</button>
+      <button class="btn gh" id="quitBtn">SERAH & KELUAR</button>
+    </div>`;
+  $('#bt').appendChild(overlay);
+
+  overlay.querySelector('#resumeBtn').onclick = () => resumeFight();
+  overlay.querySelector('#restartBtn').onclick = () => {
+    overlay.remove();
+    paused = false;
+    running = false;
+    battle.abort();
+    startFight(currentStage);
+  };
+  overlay.querySelector('#quitBtn').onclick = () => {
+    overlay.remove();
+    paused = false;
+    surrenderFight();
+  };
+}
+
+function resumeFight() {
+  if (!paused) return;
+  paused = false;
+  sfx('tap');
+  $('#bt').querySelector('.pov')?.remove();
+  $('#bt').getAnimations({ subtree: true }).forEach((a) => a.play());
+}
+
+// Tab disembunyikan / aplikasi berpindah -> jeda otomatis.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && running && !paused) pauseFight();
+});
+
 function surrenderFight() {
   battle.abort();
   running = false;
+  paused = false;
   hideBattle();
   sfx('lose');
   toast('Kamu menyerah.');
@@ -393,6 +515,7 @@ function surrenderFight() {
 }
 
 function hideBattle() {
+  paused = false;
   const bt = $('#bt');
   bt.classList.remove('on', 'shake');
   bt.innerHTML = '';

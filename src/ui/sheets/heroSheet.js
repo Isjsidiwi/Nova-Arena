@@ -2,12 +2,15 @@ import { S } from '../../store.js';
 import { HERO_BY_ID, describeAction } from '../../data/heroes.js';
 import { RARITY } from '../../data/rarity.js';
 import { ELEMENTS } from '../../data/elements.js';
-import { SLOT_NAMES, RARITY_PREFIX } from '../../data/items.js';
+import { SLOT_NAMES, RARITY_PREFIX, WEAPON_TYPES } from '../../data/items.js';
 import { getOwned, isInTeam, heroStats, toggleTeam, tryLevelUp } from '../../core/roster.js';
+import { starProgress, tryStarUp, MAX_STAR } from '../../core/stars.js';
 import { heroLevelCost, itemUpgradeCost } from '../../core/economy.js';
 import {
   equippedFor,
-  itemText,
+  itemTextFor,
+  itemName,
+  affinityNotes,
   itemsForSlot,
   equip,
   ownerOf,
@@ -31,7 +34,7 @@ import { sfx } from '../../core/audio.js';
  * previousStats menampilkan selisih stat setelah naik level.
  * noAnim mematikan animasi sheet (saat dibuka ulang).
  */
-export function openHeroSheet(id, previousStats = null, noAnim = false) {
+export function openHeroSheet(id, previousStats = null, noAnim = false, fxText = null) {
   const hero = HERO_BY_ID[id];
   const owned = getOwned(S, id);
   if (!owned) return toast('Belum dimiliki. Dapatkan lewat Summon!');
@@ -52,12 +55,14 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
 
   const overlay = openSheet(`
     <div class="hd">
-      <div class="pt ${hero.rarity}" style="--r:${color};--c:${ELEMENTS[hero.element].color}">${heroArt(hero)}</div>
+      <div class="pt ${hero.rarity} ${inTeam ? 'in' : ''}" style="--r:${color};--c:${ELEMENTS[hero.element].color}">${heroArt(hero)}</div>
       <div style="flex:1">
         <div class="dm">${hero.title}</div>
         <h2>${hero.name}</h2>
-        <div style="margin:6px 0;display:flex;align-items:center;gap:6px">${elementBadge(hero.element)}<span>${ELEMENTS[hero.element].name} · ${hero.role} · <span style="color:${color}">${hero.rarity}</span></span></div>
+        <div style="margin:6px 0;display:flex;align-items:center;gap:6px">${elementBadge(hero.element)}<span>${ELEMENTS[hero.element].name} · ${hero.role} · ${WEAPON_TYPES[hero.weapon] || ''} · <span style="color:${color}">${hero.rarity}</span></span></div>
         <div class="bar">Level<b>${owned.lv}/${levelCap}</b></div>
+        <div class="bar">Bintang<b style="color:#ffd76a">${'★'.repeat(starProgress(owned).stars)}<span style="color:#3a4170">${'★'.repeat(MAX_STAR - starProgress(owned).stars)}</span></b></div>
+        <div class="bar">Duplikat<b>${starProgress(owned).dupes} tersimpan</b></div>
         ${statBar('HP', 'hp')}${statBar('ATK', 'atk')}${statBar('DEF', 'def')}${statBar('SPD', 'spd')}
         <div class="bar">Koin<b>${fmt(S.k)}</b></div>
       </div>
@@ -65,7 +70,8 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
     <div class="eqs">${[0, 1, 2, 3, 4]
       .map((slot) => {
         const item = items[slot];
-        return `<button class="es" data-sl="${slot}" style="--r:${item ? RARITY[item.r].color : '#2a3470'}">${item ? itemArt(item) : '+'}<em>${item ? itemText(item) : SLOT_NAMES[slot]}</em></button>`;
+        const effNegative = item && affinityNotes(item, hero).some((n) => n.kind === 'bad');
+        return `<button class="es" data-sl="${slot}" style="--r:${item ? RARITY[item.r].color : '#2a3470'}">${item ? itemArt(item) : '+'}<em>${item ? `<span style="color:${effNegative ? '#ff8a8a' : '#7dffb0'}">${itemTextFor(item, hero)}</span>` : SLOT_NAMES[slot]}</em></button>`;
       })
       .join('')}</div>
     <div class="sk"><b>${hero.skill.name}</b><br>${describeAction(hero.skill.type, hero.skill.mult, false)}</div>
@@ -74,10 +80,13 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
       <button class="btn cy" id="levelUp" ${owned.lv >= levelCap ? 'disabled' : ''}>NAIK LEVEL · ${fmt(cost)}</button>
       <button class="btn ${inTeam ? 'gh' : 'pk'}" id="teamToggle">${inTeam ? 'KELUARKAN' : 'MASUK TIM'}</button>
     </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="starUp" ${starProgress(owned).canUpgrade ? '' : 'disabled'}>${starProgress(owned).maxed ? '★ BINTANG MAKSIMUM' : starProgress(owned).canUpgrade ? `NAIK BINTANG KE ★${starProgress(owned).stars + 1} · ${starProgress(owned).nextCost} DUPLIKAT` : `NAIK BINTANG · DUPLIKAT ${starProgress(owned).dupes}/${starProgress(owned).nextCost}`}</button>
+    </div>
   `);
 
   if (noAnim) disableSheetAnimation(overlay);
-  if (previousStats) levelUpFx(overlay.querySelector('.pt'), 'LEVEL UP! Lv' + owned.lv);
+  if (previousStats) levelUpFx(overlay.querySelector('.pt'), fxText || 'LEVEL UP! Lv' + owned.lv, '#ffd76a');
 
   overlay.querySelectorAll('.es').forEach((button) => {
     button.addEventListener('click', () => {
@@ -95,6 +104,18 @@ export function openHeroSheet(id, previousStats = null, noAnim = false) {
     overlay.remove();
     openHeroSheet(id, stats, true);
     refresh();
+  });
+
+  overlay.querySelector('#starUp').addEventListener('click', () => {
+    const result = tryStarUp(owned);
+    if (!result.ok) {
+      toast(result.reason === 'max' ? 'Bintang sudah maksimum' : 'Duplikat belum cukup');
+      return;
+    }
+    overlay.remove();
+    openHeroSheet(id, stats, true, `BINTANG ★${result.stars}!`);
+    refresh();
+    refreshHud();
   });
 
   overlay.querySelector('#teamToggle').addEventListener('click', () => {
@@ -122,14 +143,17 @@ function openSlotPicker(heroId, slot, parentOverlay) {
   const overlay = openSheet(`
     <div class="ttl">${SLOT_NAMES[slot].toUpperCase()}<small>${hero.name}</small></div>
     ${currentItem
-      ? `<div class="sk">Terpasang: <b>${RARITY_PREFIX[currentItem.r]} ${SLOT_NAMES[slot]} Lv${currentItem.lv}</b> <span style="color:#7dffb0">${itemText(currentItem)}</span></div>
+      ? `<div class="sk">Terpasang: <b>${itemName(currentItem)} Lv${currentItem.lv}</b> <span style="color:${affinityNotes(currentItem, hero).some((n) => n.kind === 'bad') ? '#ff8a8a' : '#7dffb0'}">${itemTextFor(currentItem, hero)}</span>${affinityNotes(currentItem, hero).map((n) => `<div class="anote ${n.kind}">${n.label}</div>`).join('')}</div>
          <div class="row"><button class="btn cy" id="upgradeEquipped">UPGRADE · ${fmt(itemUpgradeCost(currentItem))}</button><button class="btn gh" id="unequipSlot">LEPAS</button></div>`
       : ''}
     <div class="hg" style="margin-top:12px">${candidates
       .map((item) => {
         const owner = ownerOf(S, item.u, heroId);
-        const html = itemCard(item);
-        return owner ? html.replace('</button>', `<span class="tg">Dipakai ${HERO_BY_ID[owner].name}</span></button>`) : html;
+        const bad = affinityNotes(item, hero).some((n) => n.kind === 'bad');
+        const tags =
+          `<span class="tg" style="background:${bad ? '#5a1626' : '#14532d'}">Untuk ${hero.name}: ${itemTextFor(item, hero)}</span>` +
+          (owner ? `<span class="tg">Dipakai ${HERO_BY_ID[owner].name}</span>` : '');
+        return itemCard(item).replace('</button>', `${tags}</button>`);
       })
       .join('')}</div>
     ${candidates.length ? '' : `<div class="dm" style="margin-top:10px">Tidak ada item ${SLOT_NAMES[slot]} lain. Dapatkan lewat Summon Item.</div>`}

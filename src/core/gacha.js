@@ -1,6 +1,9 @@
 import { HERO_BY_ID, HEROES } from '../data/heroes.js';
 import { DUPLICATE_COINS, GACHA_COST } from './economy.js';
 import { pick } from './rng.js';
+import { bankDuplicate, starProgress, MAX_STAR } from './stars.js';
+import { ELEMENTS } from '../data/elements.js';
+import { WEAPON_KEYS } from '../data/items.js';
 
 const PITY_LIMIT = 49;
 const SSR_RATE = 3;
@@ -36,7 +39,15 @@ export function pull(state, count, itemMode = false, rng = Math.random) {
     if (rarity !== 'R') gotAboveR = true;
 
     if (itemMode) {
-      const item = { u: state.uid++, s: Math.floor(rng() * 5), r: rarity, lv: 1 };
+      const slot = Math.floor(rng() * 5);
+      const item = {
+        u: state.uid++,
+        s: slot,
+        r: rarity,
+        lv: 1,
+        e: pick(rng, Object.keys(ELEMENTS)),
+        ...(slot === 0 ? { w: pick(rng, WEAPON_KEYS) } : {}),
+      };
       state.eq.push(item);
       results.push({ kind: 'item', rarity, item });
     } else {
@@ -44,13 +55,19 @@ export function pull(state, count, itemMode = false, rng = Math.random) {
       const hero = pick(rng, candidates);
       const owned = state.heroes.find((h) => h.id === hero.id);
       let coins = 0;
+      let star = null;
       if (owned) {
-        coins = DUPLICATE_COINS[rarity];
-        state.k += coins;
+        if ((owned.st || 1) >= MAX_STAR) {
+          coins = DUPLICATE_COINS[rarity];
+          state.k += coins;
+        } else {
+          bankDuplicate(owned);
+          star = starProgress(owned);
+        }
       } else {
-        state.heroes.push({ id: hero.id, lv: 1 });
+        state.heroes.push({ id: hero.id, lv: 1, st: 1, dp: 0 });
       }
-      results.push({ kind: 'hero', rarity, hero, duplicate: !!owned, coins });
+      results.push({ kind: 'hero', rarity, hero, duplicate: !!owned, coins, star });
     }
   }
 

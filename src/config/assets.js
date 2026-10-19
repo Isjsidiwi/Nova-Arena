@@ -8,16 +8,19 @@ export const ASSETS = {
     sylva: 'assets/portraits/sylva.webp',
     arka: 'assets/portraits/arka.webp',
     mira: 'assets/portraits/mira.webp',
+    volta: 'assets/portraits/volta.webp',
   },
   icon: {
     sylva: 'assets/icons/sylva.webp',
     arka: 'assets/icons/arka.webp',
     mira: 'assets/icons/mira.webp',
+    volta: 'assets/icons/volta.webp',
   },
   cutin: {
     sylva: 'assets/cutins/sylva.webp',
     arka: 'assets/cutins/arka.webp',
     mira: 'assets/cutins/mira.webp',
+    volta: 'assets/cutins/volta.webp',
   },
   // Badge plakat per rarity. Dipakai rarityBadge().
   rarity: {

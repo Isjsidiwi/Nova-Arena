@@ -1,0 +1,70 @@
+/* ================================================================
+   RESPONSIVITAS — dimuat terakhir agar menimpa aturan dasar.
+   Bingkai game: lebar min(100vw, 60dvh). Target utama:
+   1) HP kecil (<=380px) tidak sesak/overflow
+   2) Layar pendek / landscape HP tetap bisa dimainkan
+   3) Bingkai besar (desktop/tall) sedikit diperbesar proporsional
+   ================================================================ */
+
+/* Judul layar & ronde battle: ukuran cair mengikuti lebar layar. */
+.ttl { font-size: clamp(21px, 6.2vw, 30px); }
+#bt .top .rd { font-size: clamp(16px, 5vw, 22px); }
+.res h1 { font-size: clamp(34px, 11vw, 52px); }
+#cut b { font-size: clamp(22px, 8vw, 36px); }
+
+/* --- HP kecil --- */
+@media (max-width: 380px) {
+  .sc { padding-left: 10px; padding-right: 10px; }
+  .hg { gap: 7px; }
+  .hc .nm { font-size: 12px; padding-left: 8px; padding-right: 10px; }
+  .cur b { padding: 5px 10px; font-size: 13.5px; }
+  .rank { padding: 6px 12px; font-size: 13px; }
+  #nav button { font-size: 11px; }
+  .btn { padding: 11px 18px; font-size: 15.5px; }
+  .ttl { letter-spacing: 2px; }
+  .ttl .fbtn { padding: 8px 12px; font-size: 12px; letter-spacing: 1px; }
+  .sp { width: 38px; }
+  .ub { gap: 4px; padding-left: 6px; padding-right: 6px; }
+}
+
+/* --- HP sangat kecil --- */
+@media (max-width: 330px) {
+  .hg { gap: 5px; }
+  .hc .nm { font-size: 11px; }
+  .cur b { padding: 4px 8px; font-size: 12.5px; gap: 4px; }
+  .tabs button { font-size: 13px; }
+  .fsh-med { width: 42px; height: 42px; }
+}
+
+/* --- Layar pendek / landscape: rapatkan vertikal --- */
+@media (max-height: 540px) {
+  .sc { padding-top: calc(52px + var(--sat)); padding-bottom: calc(58px + var(--sab)); }
+  #nav { height: calc(54px + var(--sab)); }
+  #nav svg { width: 20px; height: 20px; }
+  #hud { padding-top: calc(5px + var(--sat)); }
+  .sh { max-height: 94%; padding-top: 10px; }
+  #bt .top { padding-top: calc(5px + var(--sat)); }
+  .ub { padding-top: 4px; padding-bottom: calc(6px + var(--sab)); }
+  .fld { padding: 0 10px; }
+  .u { width: 15%; }
+  .u.e.bs { width: 24%; }
+  #cut { top: 28%; height: 36%; }
+}
+
+/* --- Bingkai lebar (desktop / tablet tegak tinggi): naikkan skala --- */
+@media (min-width: 520px) {
+  .hg { gap: 12px; }
+  .hc .nm { font-size: 14.5px; }
+  .btn { font-size: 18px; }
+  .dm { font-size: 16.5px; }
+  #nav button { font-size: 13px; }
+  .u .eb.img { width: 28px; height: 28px; }
+}
+
+/* Gambar & svg tidak pernah melebar keluar bingkai. */
+#st img, #st svg { max-width: 100%; }
+
+/* Dukungan notch landscape: geser bingkai tidak tertutup poni menyamping. */
+@supports (padding: env(safe-area-inset-left)) {
+  #st { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+}

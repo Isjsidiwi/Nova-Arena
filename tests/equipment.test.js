@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   itemValue,
   itemText,
+  itemTextFor,
+  itemName,
+  affinityFactor,
   bonusFor,
   ownerOf,
   equip,
@@ -31,10 +34,11 @@ describe('nilai & teks item', () => {
 });
 
 describe('equip / unequip', () => {
-  it('bonusFor menjumlahkan item terpasang', () => {
+  it('bonusFor menjumlahkan item terpasang (item polos tanpa elemen/tipe = netral)', () => {
     const state = freshState();
-    equip(state, 'sylva', 0, state.eq[0].u);
-    equip(state, 'sylva', 1, state.eq[1].u);
+    state.eq.push({ u: 900, s: 0, r: 'R', lv: 1 }, { u: 901, s: 1, r: 'R', lv: 1 });
+    equip(state, 'sylva', 0, 900);
+    equip(state, 'sylva', 1, 901);
     const bonus = bonusFor(state, 'sylva');
     expect(bonus.atk).toBe(40);
     expect(bonus.hp).toBe(400);
@@ -99,5 +103,47 @@ describe('upgrade item', () => {
     const result = tryUpgradeItem(state, item.u);
     expect(result.ok).toBe(false);
     expect(result.reason).toBe('max');
+  });
+});
+
+describe('logika kecocokan item (afinitas)', () => {
+  it('faktor senjata dan elemen terkalikan dalam bonusFor', () => {
+    const state = freshState();
+    // Petra: tombak + Petir. Kapak Petir: senjata tidak cocok (x-0.3)
+    // dikali resonansi elemen sama (x1.25): 40 x -0.3 x 1.25 = -15.
+    state.eq.push({ u: 950, s: 0, r: 'R', lv: 1, w: 'kapak', e: 't' });
+    equip(state, 'petra', 0, 950);
+    expect(bonusFor(state, 'petra').atk).toBe(-15);
+  });
+
+  it('contoh user: kapak untuk pemanah, elemen netral = -12', () => {
+    const hero = { weapon: 'panah', element: 't' };
+    const item = { s: 0, r: 'R', lv: 1, w: 'kapak', e: 'a' };
+    expect(affinityFactor(item, hero)).toBeCloseTo(-0.3);
+    expect(itemTextFor(item, hero)).toBe('-12 ATK');
+  });
+
+  it('contoh user: helm Api pada hero Air bernilai negatif (bentrok)', () => {
+    const hero = { weapon: 'tongkat', element: 'w' };
+    const helm = { s: 1, r: 'R', lv: 1, e: 'a' };
+    expect(affinityFactor(helm, hero)).toBeCloseTo(-0.5);
+    expect(itemTextFor(helm, hero)).toBe('-200 HP');
+  });
+
+  it('resonansi elemen sama menaikkan nilai 25%', () => {
+    const hero = { weapon: 'panah', element: 'g' };
+    const bow = { s: 0, r: 'R', lv: 1, w: 'panah', e: 'g' };
+    expect(itemTextFor(bow, hero)).toBe('+50 ATK');
+  });
+
+  it('elemen item mengalahkan elemen hero: nilai setengah', () => {
+    const hero = { weapon: 'pedang', element: 'g' };
+    const helm = { s: 1, r: 'R', lv: 1, e: 'a' }; // Api > Angin
+    expect(itemTextFor(helm, hero)).toBe('+200 HP');
+  });
+
+  it('itemName memuat tipe senjata dan elemen', () => {
+    expect(itemName({ s: 0, r: 'SR', lv: 1, w: 'kapak', e: 'a' })).toBe('Mithril Kapak Api');
+    expect(itemName({ s: 1, r: 'R', lv: 1, e: 'w' })).toBe('Baja Helm Air');
   });
 });

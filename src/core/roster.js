@@ -10,7 +10,7 @@ export const isInTeam = (state, id) => state.team.includes(id);
 
 export function heroStats(state, id) {
   const owned = getOwned(state, id);
-  return computeStats(HERO_BY_ID[id], owned.lv, bonusFor(state, id));
+  return computeStats(HERO_BY_ID[id], owned.lv, bonusFor(state, id), owned.st || 1);
 }
 
 export const heroPower = (state, id) => powerOf(heroStats(state, id));
@@ -58,4 +58,20 @@ export function sortedOwned(state) {
       RARITY[HERO_BY_ID[b.id].rarity].multiplier - RARITY[HERO_BY_ID[a.id].rarity].multiplier ||
       heroPower(state, b.id) - heroPower(state, a.id),
   );
+}
+
+/**
+ * Anggota tim di depan, mengikuti urutan slot tim (TIM 1..5); sisanya
+ * mempertahankan urutan masuk (sort stabil). Dipakai tampilan Koleksi
+ * saat tidak ada filter aktif (permintaan user 18 Okt).
+ */
+export function teamFirst(owned, team) {
+  return [...owned].sort((a, b) => {
+    const ta = team.indexOf(a.id);
+    const tb = team.indexOf(b.id);
+    if (ta === -1 && tb === -1) return 0;
+    if (ta === -1) return 1;
+    if (tb === -1) return -1;
+    return ta - tb;
+  });
 }

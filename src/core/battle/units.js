@@ -16,7 +16,7 @@ export function makePlayerUnits(state) {
   return state.team.map((id, index) => {
     const hero = HERO_BY_ID[id];
     const owned = state.heroes.find((h) => h.id === id);
-    const stats = computeStats(hero, owned.lv, bonusFor(state, id));
+    const stats = computeStats(hero, owned.lv, bonusFor(state, id), owned.st || 1);
     return {
       side: 'p',
       index,

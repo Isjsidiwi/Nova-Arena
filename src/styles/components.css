@@ -153,8 +153,9 @@
   bottom: 0;
   /* Kanan dibuat lebih lega (12px): teks Lv tadinya dempet tepi kartu,
      apalagi ada potongan diagonal di sudut kanan bawah. */
-  padding: 14px 12px 4px 10px;
-  background: linear-gradient(transparent, #000d);
+  padding: 16px 12px 4px 10px;
+  background: linear-gradient(transparent, #000e 30%, #000f 55%);
+  text-shadow: 0 1px 3px #000;
   font-size: 13px;
   font-weight: 700;
   display: flex;
@@ -227,22 +228,24 @@
    Dulu di baris atas, bertabrakan dengan ikon elemen + plakat rarity
    (tiga elemen itu tidak muat sebaris di kartu sempit). */
 .hc .tm {
+  /* Tab TIM di tepi KIRI kartu (saran user): posisi tengah-bawah portrait
+     kini ditempati deret bintang penuh. */
   position: absolute;
-  bottom: 37px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 3;
-  height: 20px;
+  height: 19px;
   display: inline-flex;
   align-items: center;
-  background: linear-gradient(90deg, #ffd76a, #ffb347);
+  background: linear-gradient(90deg, #ffb347, #ffd76a);
   color: #3a2403;
   font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   white-space: nowrap;
-  padding: 0 10px;
-  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  padding: 0 8px 0 6px;
+  border-radius: 0 5px 5px 0;
   box-shadow: 0 2px 10px #000a, 0 0 12px #ffd76a55;
 }
 
@@ -580,32 +583,263 @@
   to { transform: translate(-50%, -70px); opacity: 0; }
 }
 
-/* Frame SSR prismatik: CONIC gradient pada background ganda (padding-box +
-   border-box). Conic mengalir memutari pusat kartu sehingga warna nyambung
-   di semua sudut tanpa patahan — linear gradient terbukti membuat pita warna
-   terputus di tepi kartu, dan border-image lebih parah (belang per sisi).
-   Emas dominan (0-105° dan 255-360°); sapuan oranye->pink->cyan hanya
-   melintasi busur bawah (105-255°) sesuai arah sudut conic. */
+/* Frame SSR prismatik BERPUTAR: CONIC gradient pada background ganda
+   (padding-box + border-box). Sudut awal conic dianimasikan lewat @property
+   --ang sehingga sapuan warna berputar halus mengelilingi kartu — emas tetap
+   dominan, busur oranye->pink->cyan mengorbit. Conic dipilih karena warna
+   nyambung di semua sudut tanpa patahan (linear = pita terputus di tepi,
+   border-image = belang per sisi). Browser tanpa @property: sudut diam di
+   0deg, tampil sebagai gradasi statis yang tetap rapi. */
+@property --ang {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes ssr-spin {
+  to { --ang: 360deg; }
+}
+
+.hc.SSR, .hd .pt.SSR {
+  animation: ssr-spin 7s linear infinite;
+}
+
 .hc.SSR {
   --bc: #ff5da2;
   border: 2px solid transparent;
   background:
     radial-gradient(circle at 50% 30%, var(--c) -80%, #0c1236 75%) padding-box,
-    conic-gradient(from 0deg, #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg) border-box;
+    conic-gradient(from var(--ang), #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg) border-box;
 }
 
-/* Segitiga sudut kanan-bawah (~135° arah conic) = zona oranye->pink. */
+/* Tambalan sudut SSR = potongan conic ASLI seukuran kartu: pseudo dibuat
+   sebesar kartu penuh (pusat conic sama persis dengan pusat frame) lalu
+   di-clip hanya segitiga sudutnya, dan ikut beranimasi ssr-spin. Hasilnya
+   warna tambalan adalah kelanjutan matematis frame — sinkron sempurna
+   di setiap fase putaran, bukan warna diam tebakan. */
 .hc.SSR::before {
-  background: linear-gradient(to top left, #ff5da2, #ff9e5e 49.9%, transparent 50%);
+  inset: 0;
+  width: auto;
+  height: auto;
+  background: conic-gradient(from var(--ang), #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg);
+  clip-path: polygon(100% calc(100% - 14px), 100% 100%, calc(100% - 14px) 100%);
+  animation: ssr-spin 7s linear infinite;
 }
 
 .hd .pt.SSR {
   border: 2px solid transparent;
   background:
     radial-gradient(circle at 50% 30%, var(--c) -60%, #0c1236 70%) padding-box,
-    conic-gradient(from 0deg, #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg) border-box;
+    conic-gradient(from var(--ang), #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg) border-box;
 }
 
 .hd .pt.SSR::after {
-  background: linear-gradient(to top left, #ff5da2, #ff9e5e 49.9%, transparent 50%);
+  inset: 0;
+  width: auto;
+  height: auto;
+  background: conic-gradient(from var(--ang), #ffd76a 0deg, #ffd76a 105deg, #ff9e5e 140deg, #ff5da2 175deg, #6ee7ff 215deg, #ffd76a 255deg, #ffd76a 360deg);
+  clip-path: polygon(100% calc(100% - 16px), 100% 100%, calc(100% - 16px) 100%);
+  animation: ssr-spin 7s linear infinite;
+}
+
+/* Bar nama hero satu baris: Nama ... Lv (bintang sudah pindah ke pill
+   tengah bawah portrait). */
+.hc .nm.hero {
+  align-items: center;
+  gap: 6px;
+}
+
+.hc .nmname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc .nmlv {
+  flex: none;
+}
+
+/* SSR + TIM: penanda tim (emas solid) MENANG atas frame rarity — border
+   conic berputar dimatikan, tambalan sudut kembali segitiga emas polos. */
+.hc.SSR.in {
+  /* --bc WAJIB direset di sini: .hc.SSR memasang --bc pink #ff5da2 (sesama
+     spesifisitas 0,2,0 dengan .hc.in tapi tertulis lebih akhir, jadi pink
+     yang menang) — tanpa baris ini segitiga sudut var(--bc) tampil pink
+     pada SSR anggota tim (laporan user 18 Okt). */
+  --bc: #ffd76a;
+  border: 2px solid #ffd76a;
+  background: radial-gradient(circle at 50% 30%, var(--c) -60%, #0c1236 70%);
+  animation: none;
+}
+
+.hc.SSR.in::before {
+  inset: auto;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(to top left, var(--bc) 49.9%, transparent 50%);
+  clip-path: none;
+  animation: none;
+}
+
+.hd .pt.SSR.in {
+  border: 2px solid #ffd76a;
+  background: radial-gradient(circle at 50% 30%, var(--c) -60%, #0c1236 70%);
+  animation: none;
+}
+
+.hd .pt.SSR.in::after {
+  inset: auto;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(to top left, #ffd76a 49.9%, transparent 50%);
+  clip-path: none;
+  animation: none;
+}
+
+/* Deret bintang PENUH (6) di tengah bawah portrait — bekas posisi pita TIM.
+   Pill gelap transparan agar bintang tetap terbaca di atas art terang. */
+.hc .hstars {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 41px;
+  z-index: 3;
+  font-size: 11px;
+  letter-spacing: 2px;
+  line-height: 1;
+  white-space: nowrap;
+  color: #ffd76a;
+  background: #00000059;
+  padding: 3px 9px 4px;
+  border-radius: 999px;
+  text-shadow: 0 1px 3px #000, 0 0 6px #ffd76a66;
+}
+
+.hc .hstars i {
+  font-style: normal;
+  color: #ffffff38;
+  text-shadow: none;
+}
+
+/* ===== Panel DEV (khusus testing, diminta user) ===== */
+.devbtn {
+  position: fixed;
+  right: 10px;
+  bottom: 86px;
+  z-index: 95;
+  padding: 7px 12px;
+  background: #0c1236ee;
+  color: #6ee7ff;
+  border: 1.5px dashed #6ee7ff88;
+  border-radius: 8px;
+  font: 800 11px 'Chakra Petch', sans-serif;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px #000a;
+}
+
+.devwrap {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  background: #04060fd9;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.devwrap[hidden] {
+  display: none;
+}
+
+.devpanel {
+  width: 100%;
+  max-width: 430px;
+  max-height: 78%;
+  overflow-y: auto;
+  background: #0a0f2b;
+  border: 1.5px solid #6ee7ff55;
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+  color: #dfe8ff;
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+.devhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.devhead b {
+  color: #6ee7ff;
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+
+.devsub {
+  font-size: 10.5px;
+  color: #8fa3d9;
+  letter-spacing: 1px;
+}
+
+.devclose {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #dfe8ff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.devstatus {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #ffd76a;
+  letter-spacing: .4px;
+}
+
+.devsec {
+  margin: 16px 0 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #8fa3d9;
+}
+
+.devgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.devgrid button {
+  padding: 11px 8px;
+  background: #131c4d;
+  color: #dfe8ff;
+  border: 1px solid #6ee7ff44;
+  border-radius: 9px;
+  font: 700 12px 'Chakra Petch', sans-serif;
+  cursor: pointer;
+}
+
+.devgrid button:active {
+  background: #1d2a6b;
+}
+
+.devgrid button.wide {
+  grid-column: 1 / -1;
+}
+
+.devgrid button.danger {
+  background: #4d1322;
+  border-color: #ff5d7e66;
+  color: #ffb3c1;
 }

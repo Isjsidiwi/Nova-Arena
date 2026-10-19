@@ -63,15 +63,29 @@ describe('pull', () => {
     expect(state.g).toBe(3000 - 2700);
   });
 
-  it('hero duplikat memberi koin', () => {
+  it('hero duplikat masuk saldo duplikat; bintang TIDAK naik otomatis', () => {
     const state = freshState();
-    state.heroes = [{ id: 'arka', lv: 1 }]; // kandidat R pertama
+    state.heroes = [{ id: 'arka', lv: 1, st: 1, dp: 0 }]; // kandidat R pertama
     state.k = 0;
     // roll rarity 0.5 (R), pick index 0 -> arka (duplikat)
     const result = pull(state, 1, false, scripted([.5, 0]));
     expect(result.results[0].duplicate).toBe(true);
-    expect(state.k).toBe(200);
+    expect(result.results[0].coins).toBe(0);
+    expect(state.heroes[0].st).toBe(1); // bintang tetap: upgrade itu manual
+    expect(state.heroes[0].dp).toBe(1); // saldo duplikat bertambah
+    expect(result.results[0].star.canUpgrade).toBe(true); // 1 duplikat cukup untuk bintang 2
+    expect(state.k).toBe(0);
     expect(state.heroes.length).toBe(1);
+  });
+
+  it('duplikat pada hero bintang maksimum kembali menjadi koin', () => {
+    const state = freshState();
+    state.heroes = [{ id: 'arka', lv: 1, st: 6, dp: 25 }];
+    state.k = 0;
+    const result = pull(state, 1, false, scripted([.5, 0]));
+    expect(result.results[0].duplicate).toBe(true);
+    expect(result.results[0].star).toBeNull();
+    expect(state.k).toBe(200); // DUPLICATE_COINS R
   });
 
   it('hero baru ditambahkan ke koleksi', () => {

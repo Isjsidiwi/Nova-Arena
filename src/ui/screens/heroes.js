@@ -4,7 +4,7 @@ import { HEROES, HERO_BY_ID } from '../../data/heroes.js';
 import { ELEMENTS } from '../../data/elements.js';
 import { RARITY, RARITY_ORDER } from '../../data/rarity.js';
 import { ASSETS } from '../../config/assets.js';
-import { getOwned, sortedOwned, autoTeam } from '../../core/roster.js';
+import { getOwned, sortedOwned, teamFirst, autoTeam } from '../../core/roster.js';
 import { sortedItems } from '../../core/equipment.js';
 import { heroCard, itemCard } from '../components/cards.js';
 import { openHeroSheet } from '../sheets/heroSheet.js';
@@ -173,6 +173,10 @@ export function renderHeroScreen() {
   let filterBar = '';
   if (!itemTab) {
     let owned = sortedOwned(S).filter((o) => matchHeroFilter(HERO_BY_ID[o.id]));
+    // Tanpa filter aktif: anggota tim tampil paling atas mengikuti urutan
+    // slot TIM 1..5; sisanya tetap urutan rarity/power dari sortedOwned.
+    const noFilter = heroFilter.rarity === 'ALL' && heroFilter.element === 'ALL' && heroFilter.status === 'ALL';
+    if (noFilter) owned = teamFirst(owned, S.team);
     let locked = HEROES.filter((hero) => !getOwned(S, hero.id) && matchHeroFilter(hero));
     if (heroFilter.status === 'OWNED') locked = [];
     if (heroFilter.status === 'LOCKED') owned = [];
