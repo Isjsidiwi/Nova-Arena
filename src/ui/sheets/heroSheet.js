@@ -20,7 +20,7 @@ import {
 import { openSheet } from '../sheet.js';
 import { disableSheetAnimation, $ } from '../dom.js';
 import { levelUpFx } from '../effects.js';
-import { heroArt, elementBadge, itemArt } from '../art.js';
+import { heroArt, elementBadge, itemArt, rarityBadge } from '../art.js';
 import { itemCard } from '../components/cards.js';
 import { refreshStrips } from '../components/teamStrip.js';
 import { refresh } from '../router.js';
@@ -59,7 +59,7 @@ export function openHeroSheet(id, previousStats = null, noAnim = false, fxText =
       <div style="flex:1">
         <div class="dm">${hero.title}</div>
         <h2>${hero.name}</h2>
-        <div style="margin:6px 0;display:flex;align-items:center;gap:6px">${elementBadge(hero.element)}<span>${ELEMENTS[hero.element].name} · ${hero.role} · ${WEAPON_TYPES[hero.weapon] || ''} · <span style="color:${color}">${hero.rarity}</span></span></div>
+        <div style="margin:6px 0;display:flex;align-items:center;gap:6px">${elementBadge(hero.element)}<span>${ELEMENTS[hero.element].name} · ${hero.role} · ${WEAPON_TYPES[hero.weapon] || ''} · ${rarityBadge(hero.rarity)}</span></div>
         <div class="bar">Level<b>${owned.lv}/${levelCap}</b></div>
         <div class="bar">Bintang<b style="color:#ffd76a">${'★'.repeat(starProgress(owned).stars)}<span style="color:#3a4170">${'★'.repeat(MAX_STAR - starProgress(owned).stars)}</span></b></div>
         <div class="bar">Duplikat<b>${starProgress(owned).dupes} tersimpan</b></div>

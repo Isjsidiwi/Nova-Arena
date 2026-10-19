@@ -58,7 +58,7 @@
   .btn { font-size: 18px; }
   .dm { font-size: 16.5px; }
   #nav button { font-size: 13px; }
-  .u .eb.img { width: 28px; height: 28px; }
+  .u .eb { width: 28px; height: 28px; }
 }
 
 /* Gambar & svg tidak pernah melebar keluar bingkai. */

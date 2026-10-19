@@ -64,13 +64,7 @@ export const ASSETS = {
     citra: 'assets/cutins/citra.webp',
     raga: 'assets/cutins/raga.webp',
   },
-  // Badge plakat per rarity. Dipakai rarityBadge().
-  rarity: {
-    R: 'assets/badges/r.webp',
-    SR: 'assets/badges/sr.webp',
-    SSR: 'assets/badges/ssr.webp',
-  },
-  // Ikon medali per elemen (kode elemen: a/w/t/g/l/d). Dipakai elementBadge().
+  // Ikon per elemen (kode elemen: a/w/t/g/l/d). Dipakai elementBadge().
   element: {
     a: 'assets/elements/api.webp',
     w: 'assets/elements/air.webp',

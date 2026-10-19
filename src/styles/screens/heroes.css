@@ -163,10 +163,12 @@
   transition: .15s;
 }
 
-.fsh-plq img {
-  height: 24px;
-  width: auto;
-  display: block;
+.fsh-plq .rt {
+  --fs: 15px;
+}
+
+.fchip2 .rt {
+  --fs: 10px;
 }
 
 .fsh-plq.on {

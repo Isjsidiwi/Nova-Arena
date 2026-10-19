@@ -28,13 +28,13 @@ function activeChips(itemTab) {
   const chips = [];
   if (!itemTab) {
     if (heroFilter.rarity !== 'ALL')
-      chips.push(`<button class="fchip2" data-clear="rarity"><img src="${ASSETS.rarity[heroFilter.rarity]}" alt="${heroFilter.rarity}">✕</button>`);
+      chips.push(`<button class="fchip2" data-clear="rarity"><span class="rt ${heroFilter.rarity}"><i>${heroFilter.rarity}</i></span>✕</button>`);
     if (heroFilter.element !== 'ALL')
       chips.push(`<button class="fchip2" data-clear="element"><img class="med" src="${ASSETS.element[heroFilter.element]}" alt="">${ELEMENTS[heroFilter.element].name} ✕</button>`);
     if (heroFilter.status !== 'ALL')
       chips.push(`<button class="fchip2" data-clear="status">${STATUS_LABEL[heroFilter.status]} ✕</button>`);
   } else if (itemRarityFilter !== 'ALL') {
-    chips.push(`<button class="fchip2" data-clear="itemrarity"><img src="${ASSETS.rarity[itemRarityFilter]}" alt="${itemRarityFilter}">✕</button>`);
+    chips.push(`<button class="fchip2" data-clear="itemrarity"><span class="rt ${itemRarityFilter}"><i>${itemRarityFilter}</i></span>✕</button>`);
   }
   return chips;
 }
@@ -53,7 +53,7 @@ function openFilterSheet(itemTab) {
       <button class="fsh-all ${temp.rarity === 'ALL' ? 'on' : ''}" data-k="rarity" data-v="ALL">SEMUA</button>
       ${RARITY_ORDER.map(
         (r) =>
-          `<button class="fsh-plq ${temp.rarity === r ? 'on' : ''}" data-k="rarity" data-v="${r}" style="--fc:${RARITY[r].color}" title="${r}"><img src="${ASSETS.rarity[r]}" alt="${r}"></button>`,
+          `<button class="fsh-plq ${temp.rarity === r ? 'on' : ''}" data-k="rarity" data-v="${r}" style="--fc:${RARITY[r].color}" title="${r}"><span class="rt ${r}"><i>${r}</i></span></button>`,
       ).join('')}
     </div>
     ${
