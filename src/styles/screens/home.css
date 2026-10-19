@@ -1,65 +1,184 @@
-/* Layar Beranda */
+/* Layar Beranda
+   Susunan: .bg (efek latar, full-bleed) -> .stage (portrait + plat nama) -> .dock (panel kaca bawah).
+   Warna aksen mengikuti elemen hero lewat --c; berubah halus karena didaftarkan lewat @property.
 
-#home .stage {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  min-height: 0;
+   Menyiasati aset portrait yang terpotong (setengah badan):
+   1) Portrait turun 70px ke bawah, masuk ke balik .dock (panel kaca + blur), jadi garis potong tak terlihat.
+   2) Mask gradien: pudar ke bawah DAN ke kiri/kanan, jadi tepi potongan melebur ke latar.
+   3) .mist: kabut berwarna elemen di dasar panggung, menyamarkan sisa transisi.
+   4) Plat nama menimpa area bawah portrait, sebagai penutup alami. */
+
+@property --c {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff5c9a;
 }
 
-#home .kj {
+#home {
+  --px: 0;
+  --py: 0;
+  --dock-bleed: 70px;
+  container-type: size;
+  transition: --c .6s ease;
+}
+
+#home.on {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: calc(50px + var(--sat)) 0 calc(76px + var(--sab));
+}
+
+/* ---------- Latar & efek ---------- */
+
+#home .bg {
   position: absolute;
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 230px;
-  font-weight: 700;
-  line-height: 1;
-  opacity: .1;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-/* Dekorasi latar kini ikon medali elemen (pengganti glyph kanji raksasa). */
-#home .kj img {
-  width: 250px;
-  height: 250px;
-  display: block;
+#home .aura {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 42% at 50% 50%, color-mix(in srgb, var(--c) 36%, transparent), transparent 70%),
+    radial-gradient(95% 40% at 50% 100%, color-mix(in srgb, var(--c) 26%, transparent), transparent 70%),
+    radial-gradient(50% 30% at 88% 10%, color-mix(in srgb, var(--c) 18%, transparent), transparent 70%);
+  animation: breathe 7s ease-in-out infinite;
 }
 
+@keyframes breathe {
+  50% { opacity: .7; }
+}
+
+/* Sinar berputar pelan di belakang hero. */
+#home .rays {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 190cqw;
+  height: 190cqw;
+  translate: -50% -50%;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--c) 22%, transparent) 0 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, transparent 58%);
+  mask-image: radial-gradient(circle, #000 0, transparent 58%);
+  mix-blend-mode: screen;
+  opacity: .5;
+  animation: spin 110s linear infinite;
+}
+
+@keyframes spin {
+  to { rotate: 360deg; }
+}
+
+/* Medali elemen raksasa sebagai watermark. */
+#home .kj {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 62cqw;
+  height: 62cqw;
+  translate: calc(-50% + var(--px) * -12px) calc(var(--py) * -8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52cqw;
+  font-weight: 700;
+  line-height: 1;
+  opacity: .12;
+  transition: translate .4s ease-out, opacity .35s ease;
+}
+
+#home .kj img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform .4s ease;
+}
+
+/* Cincin HUD: putus-putus berputar + busur sapuan bercahaya. */
 #home .ring {
   position: absolute;
-  width: 78%;
+  left: 50%;
+  top: 46%;
+  width: 86cqw;
   aspect-ratio: 1;
-  bottom: 6%;
+  translate: calc(-50% + var(--px) * -6px) calc(-50% + var(--py) * -4px);
   border-radius: 50%;
-  border: 2px dashed;
-  opacity: .5;
-  animation: rot 40s linear infinite;
+  border: 2px dashed color-mix(in srgb, var(--c) 55%, transparent);
+  transition: translate .3s ease-out;
+}
+
+#home .ring::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(transparent 0 70%, var(--c) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 6px var(--c));
+  animation: spin 7s linear infinite;
 }
 
 #home .ring.b {
-  width: 62%;
-  bottom: 12%;
-  animation-direction: reverse;
-  border-style: solid;
-  opacity: .3;
+  width: 68cqw;
+  border: 1px solid color-mix(in srgb, var(--c) 32%, transparent);
 }
 
-@keyframes rot {
-  to { transform: rotate(360deg); }
+#home .ring.b::before {
+  display: none;
+}
+
+/* Bara melayang naik. Pakai transform + opacity saja agar ringan di HP. */
+#home .embers {
+  position: absolute;
+  inset: 0;
+}
+
+#home .embers i {
+  position: absolute;
+  left: var(--x);
+  bottom: -10px;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 8px 1px var(--c);
+  opacity: 0;
+  animation: rise var(--d) linear var(--dl) infinite;
+}
+
+@keyframes rise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: .9; }
+  80% { opacity: .6; }
+  100% { transform: translate(var(--dx), -92cqh); opacity: 0; }
+}
+
+/* ---------- Panggung: portrait ---------- */
+
+#home .stage {
+  grid-row: 1;
+  position: relative;
+  min-height: 0;
 }
 
 #lead {
-  position: relative;
-  /* Paket tampilan portrait (16 Okt): skala 94% dari semula (96% -> 90.5%)
-     + geser kiri sedikit, agar busur di sisi kanan tidak menempel tepi layar. */
-  height: 90.5%;
-  margin-left: -14px;
-  animation: fl 4s ease-in-out infinite;
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--dock-bleed) * -1);
+  height: min(calc(100% + var(--dock-bleed)), 132cqw);
+  aspect-ratio: 3 / 4;
+  translate: -50% 0;
+  z-index: 1;
   cursor: pointer;
-  filter: drop-shadow(0 12px 24px #0008);
+  filter:
+    drop-shadow(0 0 20px color-mix(in srgb, var(--c) 38%, transparent))
+    drop-shadow(0 14px 22px #0009);
+  animation: fl 4.5s ease-in-out infinite;
+  transition: opacity .35s ease;
 }
 
 @keyframes fl {
@@ -67,98 +186,496 @@
 }
 
 #lead svg {
-  height: 100%;
-  width: auto;
-  /* Fade bawah: portrait setengah badan melebur ke background, tanpa garis
-     potong keras di paha saat animasi naik-turun berjalan. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 79%, transparent 99%);
-  mask-image: linear-gradient(to bottom, #000 79%, transparent 99%);
-}
-
-.plate {
-  position: absolute;
-  left: 0;
-  bottom: 30px;
-  padding: 8px 26px 8px 14px;
-  background: linear-gradient(90deg, #0a1030f0, #0a103000);
-  border-left: 5px solid var(--pk);
-}
-
-.plate b {
   display: block;
-  font-size: 30px;
+  width: 100%;
+  height: 100%;
+  translate: calc(var(--px) * -7px) calc(var(--py) * -4px);
+  transition: transform .45s ease, translate .3s ease-out;
+  /* Fade bawah + fade tepi kiri/kanan: tepi potongan aset melebur ke latar. */
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 0, #000 72%, transparent 98%),
+    linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 0, #000 72%, transparent 98%),
+    linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-composite: intersect;
+}
+
+/* Kabut dasar panggung. */
+#home .mist {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -1px;
+  height: 30%;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 80% at 50% 100%, color-mix(in srgb, var(--c) 40%, transparent), transparent 72%),
+    linear-gradient(to top, #070b1ccc 0, transparent 100%);
+  animation: breathe 6s ease-in-out infinite;
+}
+
+/* Plat nama hero. */
+#home .plate {
+  position: absolute;
+  left: 10px;
+  bottom: 14px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 34px 8px 14px;
+  background: linear-gradient(90deg, #0a1030f2 0, #0a1030c8 65%, #0a103000 100%);
+  border-left: 4px solid var(--c);
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+#home .pl-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--dm);
+}
+
+#home .pl-rar {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 1px 9px;
+  color: #1a1100;
+  background: var(--rc, var(--au));
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+#home .pl-name {
+  font-size: clamp(24px, 9.2cqw, 36px);
   font-style: italic;
   letter-spacing: 2px;
   line-height: 1;
+  text-shadow: 0 2px 14px color-mix(in srgb, var(--c) 60%, transparent);
 }
 
-.plate span {
+#home .pl-title {
   font-size: 13px;
-  color: var(--dm);
   letter-spacing: 1px;
+  color: var(--dm);
 }
 
-.say {
+/* Penanda rotasi hero (bisa diketuk). */
+#home .dots {
   position: absolute;
-  right: 0;
-  top: 12%;
-  max-width: 46%;
-  padding: 10px 14px;
+  right: 12px;
+  bottom: 22px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#home .dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  rotate: 45deg;
+  border: 1.5px solid color-mix(in srgb, var(--c) 70%, #fff);
+  transition: background .3s ease, box-shadow .3s ease, scale .3s ease;
+}
+
+/* Area ketuk diperbesar tanpa mengubah ukuran visual. */
+#home .dot::before {
+  content: '';
+  position: absolute;
+  inset: -9px;
+}
+
+#home .dot.on {
+  background: var(--c);
+  box-shadow: 0 0 10px var(--c);
+  scale: 1.3;
+}
+
+/* Gelembung ucapan. */
+#home .say {
+  position: absolute;
+  right: 8px;
+  top: 5%;
+  z-index: 5;
+  max-width: 48%;
+  padding: 10px 14px 18px;
   background: #fffffff2;
   color: #161a3a;
   font-size: 14px;
   clip-path: polygon(0 0, 100% 0, 100% 82%, 12px 82%, 0 100%);
-  padding-bottom: 18px;
+  transform-origin: 0 100%;
   opacity: 0;
-  transition: .25s;
+  scale: .8;
+  pointer-events: none;
+  transition: opacity .2s ease, scale .28s cubic-bezier(.3, 1.6, .5, 1);
 }
 
-.say.on {
+#home .say.on {
   opacity: 1;
+  scale: 1;
 }
 
-/* Transisi rotasi portrait Beranda: keluar geser kiri + fade, masuk dari kanan. */
-#lead {
-  transition: opacity .35s ease;
+/* ---------- Dock kaca (misi + tim + tombol) ---------- */
+
+#home .dock {
+  --cut: 16px;
+  grid-row: 2;
+  position: relative;
+  z-index: 6;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 10px;
+  padding: 12px;
 }
 
-#lead svg {
-  transition: transform .45s ease;
+/* Bingkai bergradien (lapisan luar) dan isi kaca (lapisan dalam). */
+#home .dock::before,
+#home .dock::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
 }
 
-#home .kj {
-  transition: opacity .35s ease;
+#home .dock::before {
+  inset: 0;
+  background: linear-gradient(135deg, var(--c), #2a3470 38%, #2a3470 62%, color-mix(in srgb, var(--c) 70%, transparent));
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
 }
 
-#home .kj img {
-  transition: transform .4s ease;
+#home .dock::after {
+  inset: 1.5px;
+  background: linear-gradient(180deg, #131c52d9, #080d26f2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  clip-path: polygon(calc(var(--cut) - 1px) 0, 100% 0, 100% calc(100% - var(--cut) + 1px), calc(100% - var(--cut) + 1px) 100%, 0 100%, 0 calc(var(--cut) - 1px));
 }
 
-#home .ring {
-  transition: border-color .6s ease;
+/* Kartu misi */
+#home .mis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-#home .plate {
-  transition: opacity .35s ease, transform .35s ease;
+#home .mi {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
 }
 
-#home .stage.out #lead {
+#home .mi small {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--dm);
+}
+
+#home .mi b {
+  font-size: clamp(17px, 6cqw, 24px);
+  font-style: italic;
+  letter-spacing: .5px;
+  color: var(--au);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#home .mi span {
+  font-size: 13px;
+  color: #c5cdf0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#home .pg {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+#home .segs {
+  display: flex;
+  gap: 3px;
+}
+
+#home .seg {
+  width: 9px;
+  height: 12px;
+  background: #222b63;
+  transform: skewX(-18deg);
+}
+
+#home .seg.elite {
+  background: #3a3f78;
+}
+
+#home .seg.boss {
+  width: 14px;
+  background: #3a3f78;
+  box-shadow: inset 0 2px 0 var(--au);
+}
+
+#home .seg.done {
+  background: var(--cc);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cc) 60%, transparent);
+}
+
+#home .seg.cur {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--cc);
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% { opacity: .35; }
+}
+
+#home .pg > span {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--dm);
+}
+
+/* Strip tim: markup dipakai bersama sheet lain, di sini hanya ditata ulang. */
+#home .strip {
+  margin: 0;
+  gap: 6px;
+}
+
+#home .slot {
+  aspect-ratio: 1 / 1.02;
+  border-width: 1.5px;
+  filter: saturate(.8) brightness(.8);
+  transition: transform .25s ease, filter .25s ease;
+}
+
+#home .slot.lead {
+  filter: none;
+  border-color: var(--c) !important;
+  /* Segitiga pojok (.slot::after di components.css) membaca --bc, yang diisi
+     inline dengan warna rarity. Timpa agar pojok ikut warna elemen. */
+  --bc: var(--c) !important;
+  transform: translateY(-4px);
+}
+
+#home .slot.lead::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 14px color-mix(in srgb, var(--c) 70%, transparent);
+}
+
+#home .slot:active {
+  transform: scale(.94);
+}
+
+#home .slot em {
+  font-size: 10.5px;
+}
+
+/* Tombol bertarung */
+#home .go {
+  display: block;
+  filter: drop-shadow(0 0 10px #ff5c9a66);
+  animation: ctaGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes ctaGlow {
+  50% { filter: drop-shadow(0 0 20px #ff5c9acc); }
+}
+
+#home .cta {
+  width: 100%;
+  height: clamp(48px, 7.4cqh, 60px);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: clamp(17px, 6.4cqw, 26px);
+  font-style: italic;
+  letter-spacing: clamp(2px, 1cqw, 4px);
+  background: linear-gradient(180deg, #ffd0e2 0, var(--pk) 52%, #e8346f 100%);
+  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+}
+
+#home .chev {
+  display: flex;
+  gap: 1px;
+}
+
+#home .chev i {
+  width: 9px;
+  height: 9px;
+  border-top: 3px solid #3a0420;
+  border-right: 3px solid #3a0420;
+  rotate: 45deg;
+  opacity: .25;
+  animation: chev 1.2s ease-in-out infinite;
+}
+
+#home .chev i:nth-child(2) { animation-delay: .15s; }
+#home .chev i:nth-child(3) { animation-delay: .3s; }
+
+@keyframes chev {
+  40% { opacity: 1; }
+}
+
+/* Tombol DEV (alat testing) tidak lagi menutupi tombol Bertarung di Beranda. */
+body:has(#home.on) .devbtn {
+  bottom: auto;
+  top: calc(50px + var(--sat));
+}
+
+/* ---------- Transisi rotasi hero ---------- */
+
+#home.out #lead {
   opacity: 0;
 }
 
-#home .stage.out #lead svg {
+#home.out #lead svg {
   transform: translateX(-30px);
 }
 
-#home .stage.out .kj {
+#home.out .kj {
   opacity: 0;
 }
 
-#home .stage.out .kj img {
+#home.out .kj img {
   transform: scale(.9);
 }
 
-#home .stage.out .plate {
+#home.out .plate {
   opacity: 0;
   transform: translateY(12px);
+}
+
+/* ---------- Animasi masuk (hanya saat layar baru dibuka) ---------- */
+
+#home.enter .aura {
+  animation: fadeIn .8s ease backwards, breathe 7s ease-in-out .8s infinite;
+}
+
+#home.enter #lead svg {
+  animation: leadIn .75s cubic-bezier(.2, .9, .3, 1) .05s backwards;
+}
+
+#home.enter .plate {
+  animation: plateIn .55s cubic-bezier(.2, .9, .3, 1) .3s backwards;
+}
+
+#home.enter .dots {
+  animation: fadeIn .5s ease .55s backwards;
+}
+
+#home.enter .dock {
+  animation: dockIn .6s cubic-bezier(.2, .9, .3, 1) .15s backwards;
+}
+
+#home.enter .slot {
+  animation: pop .4s cubic-bezier(.3, 1.5, .5, 1) backwards;
+}
+
+#home.enter .strip .slot:nth-child(1) { animation-delay: .35s; }
+#home.enter .strip .slot:nth-child(2) { animation-delay: .41s; }
+#home.enter .strip .slot:nth-child(3) { animation-delay: .47s; }
+#home.enter .strip .slot:nth-child(4) { animation-delay: .53s; }
+#home.enter .strip .slot:nth-child(5) { animation-delay: .59s; }
+
+#home.enter .cta {
+  animation: pop .5s cubic-bezier(.3, 1.4, .5, 1) .6s backwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes leadIn {
+  from { opacity: 0; transform: translateX(40px) scale(.97); }
+}
+
+@keyframes plateIn {
+  from { opacity: 0; transform: translateX(-28px); }
+}
+
+@keyframes dockIn {
+  from { opacity: 0; transform: translateY(40px); }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(.85); }
+}
+
+/* Dipakai juga oleh layar lain (reveal, gacha): jangan dihapus. */
+@keyframes rot {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Responsif ---------- */
+
+/* Layar pendek (HP kecil / browser dengan toolbar): rapatkan dock. */
+@media (max-height: 720px) {
+  #home { --dock-bleed: 56px; }
+  #home .dock { gap: 7px; padding: 9px 10px; }
+  #home .mi span { display: none; }
+  #home .slot { aspect-ratio: 1 / .9; }
+  #home .plate { padding-top: 6px; padding-bottom: 6px; }
+}
+
+/* Sangat pendek / landscape HP: sisakan tombol utama + strip tipis. */
+@media (max-height: 540px) {
+  #home.on { padding-top: calc(44px + var(--sat)); padding-bottom: calc(60px + var(--sab)); }
+  #home { --dock-bleed: 36px; }
+  #home .dock { gap: 5px; padding: 6px 8px; }
+  #home .mis .pg { display: none; }
+  #home .mi small { display: none; }
+  #home .slot { aspect-ratio: 1 / .62; }
+  #home .slot em { display: none; }
+  #home .cta { height: 38px; font-size: 17px; letter-spacing: 2px; gap: 8px; }
+  #home .chev { display: none; }
+  #home .plate { bottom: 8px; padding: 4px 22px 4px 10px; }
+  #home .pl-name { font-size: 22px; }
+  #home .pl-title { display: none; }
+  #home .dots { display: none; }
+  body:has(#home.on) .devbtn { top: calc(44px + var(--sat)); }
+}
+
+/* HP kecil */
+@media (max-width: 360px) {
+  #home .dock { margin: 0 8px; padding: 10px; }
+  #home .seg { width: 7px; }
+  #home .seg.boss { width: 11px; }
+}
+
+/* Bingkai lebar (desktop / tablet): beri ruang napas lebih. */
+@media (min-width: 520px) and (min-height: 760px) {
+  #home .dock { gap: 12px; padding: 14px; }
+  #home .mi span { font-size: 14px; }
+}
+
+/* Kurangi gerak: matikan semua animasi Beranda. Aturan global base.css hanya
+   memperpendek durasi, yang membuat animasi infinite berkedip sangat cepat. */
+@media (prefers-reduced-motion: reduce) {
+  #home *,
+  #home *::before,
+  #home *::after {
+    animation: none !important;
+    transition-duration: .01s !important;
+  }
 }

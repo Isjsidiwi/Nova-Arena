@@ -235,3 +235,187 @@
 .anote.good { background: #14532d; color: #7dffb0; }
 .anote.bad { background: #5a1626; color: #ff8a8a; }
 .anote.mid { background: #4a3a10; color: #ffd76a; }
+
+/* ================================================================
+   REDESIGN KARTU HERO + LAYAR KOLEKSI (19 Okt)
+   Frame kartu (border rarity, SSR prismatik, emas untuk tim) sengaja tidak
+   disentuh; di sini hanya lapisan latar, badge elemen, chip level, kartu
+   terkunci, tab, dan bar koleksi.
+   ================================================================ */
+
+/* Latar kartu: sorot warna elemen + medali elemen sebagai watermark +
+   bayangan dasar agar bar nama terbaca. Duduk di bawah portrait. */
+.hc .hfx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(72% 56% at 50% 38%, color-mix(in srgb, var(--c) 40%, transparent), transparent 72%),
+    linear-gradient(to top, #060a1ccc 0, transparent 46%),
+    repeating-linear-gradient(115deg, transparent 0 9px, #ffffff07 9px 10px);
+}
+
+.hc .hfx img {
+  position: absolute;
+  left: 50%;
+  top: 31%;
+  width: 78%;
+  translate: -50% -50%;
+  opacity: .17;
+}
+
+/* Glow tepi dalam sesuai rarity (glow luar terpotong clip-path kartu). */
+.hc.R:not(.in) { box-shadow: inset 0 0 14px #6fb4ff38; }
+.hc.SR:not(.in) { box-shadow: inset 0 0 16px #c28bff44; }
+.hc.SSR:not(.in) { box-shadow: inset 0 0 18px #ffd76a4d; }
+
+/* Badge elemen: bevel metalik berwarna elemen, sedikit lebih besar. */
+.hc .eb {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(145deg, #fff 0, var(--ec, #888) 42%, color-mix(in srgb, var(--ec, #888) 55%, #000) 100%);
+  z-index: 2;
+}
+
+/* Tag SR ikut berkilau (SSR sudah punya), lebih pelan. */
+.rt.SR::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 42%, #ffffffa0 50%, transparent 58%);
+  transform: translateX(-120%);
+  animation: sh 3.6s infinite;
+}
+
+/* Bar nama: nama miring + chip level berwarna elemen. */
+.hc .nmname {
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .2px;
+}
+
+.hc .nmlv {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 8px 1px 7px;
+  color: #0b1030;
+  text-shadow: none;
+  background: linear-gradient(color-mix(in srgb, var(--c) 100%, #fff 25%), color-mix(in srgb, var(--c) 75%, #000));
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+.hc .nmlv:empty {
+  display: none;
+}
+
+/* "Lv" kecil, angkanya besar: chip lebih sempit supaya nama tidak terpotong. */
+.hc .nmlv small {
+  font-size: 8.5px;
+  margin-right: 1px;
+  opacity: .75;
+}
+
+/* Kartu terkunci: siluet redup + ikon gembok, bukan kotak hitam. */
+.hc.lk {
+  filter: grayscale(1) brightness(.55);
+}
+
+.hc.lk .nm::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 34px);
+  width: 34px;
+  height: 34px;
+  translate: -50% 0;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'><path d='M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-7-2a2 2 0 0 1 4 0v2h-4z'/></svg>") center / contain no-repeat;
+  filter: drop-shadow(0 2px 5px #000);
+}
+
+.hc.lk svg {
+  opacity: .55;
+}
+
+/* Tab koleksi: segmen miring dengan hitungan. */
+#hero .tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 8px;
+  background: linear-gradient(#18215a, #10173f);
+  box-shadow: inset 0 -2px 0 #2a3470;
+  transition: background .2s ease, color .2s ease;
+}
+
+#hero .tabs button em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: #ffffff1c;
+}
+
+#hero .tabs .on {
+  background: linear-gradient(#aaf0ff, var(--c));
+  box-shadow: 0 0 14px #52e0ff55;
+}
+
+#hero .tabs .on em {
+  background: #0a1030a8;
+  color: var(--c);
+}
+
+/* Bar koleksi per rarity. */
+.colbar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.colbar .cb {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 6px 8px;
+  background: linear-gradient(135deg, #131a46, #0c1236);
+  border-left: 3px solid var(--rc);
+}
+
+.colbar .cb b {
+  justify-self: end;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.colbar .cb small {
+  font-size: 11px;
+  color: var(--dm);
+}
+
+.colbar .cbar {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: #222b63;
+  overflow: hidden;
+}
+
+.colbar .cbar i {
+  display: block;
+  height: 100%;
+  background: var(--rc);
+  box-shadow: 0 0 6px var(--rc);
+}
+
+@media (max-width: 360px) {
+  .colbar { gap: 5px; }
+  .colbar .cb { padding: 5px 6px; gap: 2px 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rt.SR::after { animation: none; }
+}

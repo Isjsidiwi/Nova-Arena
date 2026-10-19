@@ -201,11 +201,25 @@ export function renderHeroScreen() {
       : '<div class="dm" style="text-align:center;margin-top:40px">Tidak ada item yang cocok<br>dengan filter ini.</div>';
   }
 
+  const ownedCount = HEROES.filter((hero) => getOwned(S, hero.id)).length;
+  const tabCounts = [`${ownedCount}/${HEROES.length}`, `${S.eq.length}`];
+  const collectionBar = itemTab
+    ? ''
+    : `<div class="colbar">${RARITY_ORDER.slice()
+        .reverse()
+        .map((rarity) => {
+          const all = HEROES.filter((hero) => hero.rarity === rarity);
+          const have = all.filter((hero) => getOwned(S, hero.id)).length;
+          return `<span class="cb" style="--rc:${RARITY[rarity].color}"><span class="rt ${rarity}" style="--fs:11px"><i>${rarity}</i></span><b>${have}<small>/${all.length}</small></b><i class="cbar"><i style="width:${(have / all.length) * 100}%"></i></i></span>`;
+        })
+        .join('')}</div>`;
+
   $('#hero').innerHTML = `
     <div class="ttl">KOLEKSI${filterBtn}</div>
     <div class="tabs" style="--c:#52e0ff">${['HERO', 'ITEM']
-      .map((label, index) => `<button data-ht="${index}" class="${index === (itemTab ? 1 : 0) ? 'on' : ''}">${label}</button>`)
+      .map((label, index) => `<button data-ht="${index}" class="${index === (itemTab ? 1 : 0) ? 'on' : ''}">${label}<em>${tabCounts[index]}</em></button>`)
       .join('')}</div>
+    ${collectionBar}
     ${filterBar}
     <div class="scr">${content}</div>
     ${itemTab ? '' : '<div class="row" style="margin-top:8px"><button class="btn cy" id="autoTeam">TIM OTOMATIS</button></div>'}
